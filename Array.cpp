@@ -565,5 +565,3 @@ int main()
     mainMenu(resumes, jobs);
     return 0;
 }
-
-fuck
