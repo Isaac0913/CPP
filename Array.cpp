@@ -343,60 +343,38 @@ void mergeSortJobs(Job arr[], int left, int right)
     mergeJobs(arr, left, mid, right);
 }
 
-// ----------- Quick Sort for Resume ------------
-int partitionResumes(Resume arr[], int low, int high)
-{
-    string pivot = (arr[high].skillCount > 0) ? toLowerCopy(arr[high].skills[0]) : "";
-    int i = low - 1;
-    for (int j = low; j < high; ++j)
-    {
-        string cur = (arr[j].skillCount > 0) ? toLowerCopy(arr[j].skills[0]) : "";
-        if (cur < pivot)
-        {
-            ++i;
-            swap(arr[i], arr[j]);
+//INSERTION FOR RESUME ALPHABETICALLY BY ROLES
+void insertionSortResumes(Resume arr[], int n) {
+    for (int i = 1; i < n; i++) {
+        Resume key = arr[i];
+        string keySkill = (key.skillCount > 0) ? toLowerCopy(key.skills[0]) : "";
+        int j = i - 1;
+        while (j >= 0) {
+            string curSkill = (arr[j].skillCount > 0) ? toLowerCopy(arr[j].skills[0]) : "";
+            if (curSkill <= keySkill) break;
+            arr[j + 1] = arr[j];
+            j--;
         }
-    }
-    swap(arr[i + 1], arr[high]);
-    return i + 1;
-}
-
-void quickSortResumes(Resume arr[], int low, int high)
-{
-    if (low < high)
-    {
-        int pi = partitionResumes(arr, low, high);
-        quickSortResumes(arr, low, pi - 1);
-        quickSortResumes(arr, pi + 1, high);
+        arr[j + 1] = key;
     }
 }
 
-// ----------- Quick Sort for Job ------------
-int partitionJobs(Job arr[], int low, int high)
-{
-    string pivot = toLowerCopy(arr[high].role);
-    int i = low - 1;
-    for (int j = low; j < high; ++j)
-    {
-        if (toLowerCopy(arr[j].role) < pivot)
-        {
-            ++i;
-            swap(arr[i], arr[j]);
+//INSERTION FOR JOB ALPHABETICALLY BY FIRST SKILL
+void insertionSortJobs(Job arr[], int n) {
+    for (int i = 1; i < n; i++) {
+        Job key = arr[i];
+        string keyRole = toLowerCopy(key.role);
+        int j = i - 1;
+        while (j >= 0) {
+            string curRole = toLowerCopy(arr[j].role);
+            if (curRole <= keyRole) break;
+            arr[j + 1] = arr[j];
+            j--;
         }
+        arr[j + 1] = key;
     }
-    swap(arr[i + 1], arr[high]);
-    return i + 1;
 }
 
-void quickSortJobs(Job arr[], int low, int high)
-{
-    if (low < high)
-    {
-        int pi = partitionJobs(arr, low, high);
-        quickSortJobs(arr, low, pi - 1);
-        quickSortJobs(arr, pi + 1, high);
-    }
-}
 
 // ----------- Display helper (prints up to n items) ------------
 void displayResumes(ResumeArray &resumes, int count = 10)
@@ -446,67 +424,46 @@ void displayJobs(JobArray &jobs, int count = 10)
 }
 
 // ----------- Sort Menus (correct functions) ------------
-void sortMenuResumes(ResumeArray &resumes)
-{
-    if (resumes.getSize() == 0)
-    {
-        cout << "No resumes to sort.\n";
-        return;
-    }
+void sortMenuResumes(ResumeArray &resumes) {
+    if (resumes.getSize() == 0) { cout << "No resumes to sort.\n"; return; }
     int choice;
-    cout << "\nSort Resumes:\n1. Merge Sort\n2. Quick Sort\nChoice: ";
+    cout << "\nSort Resumes:\n1. Merge Sort\n2. Insertion Sort\nChoice: ";
     cin >> choice;
     auto start = chrono::high_resolution_clock::now();
-    if (choice == 1)
-    {
+    if (choice == 1) {
         mergeSortResumes(resumes.getArray(), 0, resumes.getSize() - 1);
         cout << "Resumes sorted using Merge Sort.\n";
-    }
-    else if (choice == 2)
-    {
-        quickSortResumes(resumes.getArray(), 0, resumes.getSize() - 1);
-        cout << "Resumes sorted using Quick Sort.\n";
-    }
-    else
-    {
-        cout << "Invalid option.\n";
-        return;
+    } else if (choice == 2) {
+        insertionSortResumes(resumes.getArray(), resumes.getSize());
+        cout << "Resumes sorted using Insertion Sort.\n";
+    } else {
+        cout << "Invalid option.\n"; return;
     }
     auto end = chrono::high_resolution_clock::now();
     cout << "Sorting completed in " << chrono::duration<double>(end - start).count() << " seconds.\n";
-    displayResumes(resumes, 10); // print first 10 for verification
+    displayResumes(resumes, 10);
 }
 
-void sortMenuJobs(JobArray &jobs)
-{
-    if (jobs.getSize() == 0)
-    {
-        cout << "No jobs to sort.\n";
-        return;
-    }
+void sortMenuJobs(JobArray &jobs) {
+    if (jobs.getSize() == 0) { cout << "No jobs to sort.\n"; return; }
     int choice;
-    cout << "\nSort Jobs:\n1. Merge Sort\n2. Quick Sort\nChoice: ";
+    cout << "\nSort Jobs:\n1. Merge Sort\n2. Insertion Sort\nChoice: ";
     cin >> choice;
     auto start = chrono::high_resolution_clock::now();
-    if (choice == 1)
-    {
+    if (choice == 1) {
         mergeSortJobs(jobs.getArray(), 0, jobs.getSize() - 1);
         cout << "Jobs sorted using Merge Sort.\n";
-    }
-    else if (choice == 2)
-    {
-        quickSortJobs(jobs.getArray(), 0, jobs.getSize() - 1);
-        cout << "Jobs sorted using Quick Sort.\n";
-    }
-    else
-    {
-        cout << "Invalid option.\n";
-        return;
+    } else if (choice == 2) {
+        insertionSortJobs(jobs.getArray(), jobs.getSize());
+        cout << "Jobs sorted using Insertion Sort.\n";
+    } else {
+        cout << "Invalid option.\n"; return;
     }
     auto end = chrono::high_resolution_clock::now();
     cout << "Sorting completed in " << chrono::duration<double>(end - start).count() << " seconds.\n";
-    displayJobs(jobs, 10); // print first 10 for verification
+    displayJobs(jobs, 10);
 }
+
 
 // ----------- Main Menu ------------
 void mainMenu(ResumeArray &resumes, JobArray &jobs)
