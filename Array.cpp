@@ -404,7 +404,7 @@ int main() {
     loadCSVIntoArray(resumes, "resume.csv");
     loadJobDescriptions(jobs, "job_description.csv");
 
-    cout << "Loaded0000000000000000000000000000000000 " << resumes.getSize() << " resumes, " << jobs.getSize() << " job descriptions.\n";
+    cout << "Loaded " << resumes.getSize() << " resumes, " << jobs.getSize() << " job descriptions.\n";
     mainMenu(resumes, jobs);
     return 0;
 }
