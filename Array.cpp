@@ -771,54 +771,29 @@ void runJobMatching(const JobArray &jobs, const ResumeArray &resumes)
     cout << "Enter threshold % (0 - 100): ";
     cin >> thresholdPct;
 
-    cout << "\n===== Job Matching (" << (g_searchMode == MODE_LINEAR ? "Linear" : "Two-pointer") << ") =====\n";
+    cout << "\n===== Job Matching (" 
+         << (g_searchMode == MODE_LINEAR ? "Linear" : "Two-pointer")
+         << ") =====\n";
     cout << "Job position entered: " << jobPosition << "\n";
     cout << "Skills entered: " << skills << "\n";
     cout << "Threshold: " << thresholdPct << "%\n\n";
 
-    string combinedQuery = jobPosition + " " + skills;
-    string clean = normalizeText(combinedQuery);
-    string qSkills[50];
-    int qCount = 0;
-    extractSkills(clean, qSkills, qCount);
-
-    // Randomly show up to 10 resumes per matching job, track top 5 best overall
-    struct Pair
-    {
-        int jobIdx;
-        int resIdx;
-        int overlap;
-        int denom;
-        double pct;
-    };
-    Pair top5[5];
-    int topFill = 0;
-
-    auto considerTop5 = [&](const Pair &p)
-    {
-        if (topFill < 5)
-        {
-            top5[topFill++] = p;
-        }
-        else
-        {
-            int worst = 0;
-            for (int i = 1; i < 5; ++i)
-                if (top5[i].pct < top5[worst].pct)
-                    worst = i;
-            if (p.pct > top5[worst].pct)
-                top5[worst] = p;
-        }
-    };
+    struct ScoredRes { int rIdx; int overlap; double pct; };
 
     for (int j = 0; j < jobs.getSize(); ++j)
     {
         const Job &J = jobs.getArray()[j];
+
+        // only jobs whose title matches the entered job position
         if (toLowerCopy(J.role).find(toLowerCopy(jobPosition)) == string::npos)
             continue;
 
-        int denom = (J.skillCount > 0 ? J.skillCount : 1);
-        int matchedR[20000], m = 0;
+        const int denom = (J.skillCount > 0 ? J.skillCount : 1);
+
+        // collect matches for this job
+        int maxR = resumes.getSize();
+        ScoredRes *matches = new ScoredRes[maxR];
+        int matchCount = 0;
 
         for (int r = 0; r < resumes.getSize(); ++r)
         {
@@ -828,29 +803,74 @@ void runJobMatching(const JobArray &jobs, const ResumeArray &resumes)
             if (g_searchMode == MODE_LINEAR)
             {
                 for (int a = 0; a < J.skillCount; ++a)
+                {
                     for (int b = 0; b < R.skillCount; ++b)
+                    {
                         if (J.skills[a] == R.skills[b])
+                        {
                             ++overlap;
+                            break;
+                        }
+                    }
+                }
             }
             else
             {
-                overlap = overlapSkillCount(J, R);
+                overlap = countSkillMatchesTwoPointer(J.skills, J.skillCount, R.skills, R.skillCount);
             }
 
+            if (overlap <= 0) continue;
+
             double pct = (100.0 * overlap) / denom;
-            if (pct >= thresholdPct && overlap > 0)
+            if (pct < thresholdPct) continue;
+
+            if (matchCount < maxR)
             {
-                matchedR[m++] = r;
-                considerTop5({j, r, overlap, denom, pct});
+                matches[matchCount].rIdx = r;
+                matches[matchCount].overlap = overlap;
+                matches[matchCount].pct = pct;
+                ++matchCount;
             }
         }
 
-        if (m == 0)
+        if (matchCount == 0)
+        {
+            delete[] matches;
             continue;
+        }
 
-        shuffleIndices(matchedR, m);
-        int show = (m < 10 ? m : 10);
+        // sort matches 
+        for (int a = 0; a < matchCount - 1; ++a)
+        {
+            int best = a;
+            for (int b = a + 1; b < matchCount; ++b)
+            {
+                bool better = false;
+                if (matches[b].pct > matches[best].pct)
+                    better = true;
+                else if (matches[b].pct == matches[best].pct)
+                {
+                    if (matches[b].overlap > matches[best].overlap)
+                        better = true;
+                    else if (matches[b].overlap == matches[best].overlap)
+                    {
+                        const Resume &RB = resumes.getArray()[matches[b].rIdx];
+                        const Resume &RA = resumes.getArray()[matches[best].rIdx];
+                        if (RB.id < RA.id)
+                            better = true;
+                    }
+                }
 
+                if (better)
+                {
+                    ScoredRes tmp = matches[b];
+                    matches[b] = matches[best];
+                    matches[best] = tmp;
+                }
+            }
+        }
+
+        // print job and top 10 matching resumes
         cout << "Job ID " << J.id << "\n";
         cout << "Job role " << J.role << "\n";
         cout << "Skills: [";
@@ -858,36 +878,21 @@ void runJobMatching(const JobArray &jobs, const ResumeArray &resumes)
             cout << J.skills[k] << (k + 1 < J.skillCount ? ", " : "");
         cout << "]\n";
 
+        int show = (matchCount < 10 ? matchCount : 10);
         for (int i = 0; i < show; ++i)
         {
-            const Resume &R = resumes.getArray()[matchedR[i]];
-            int overlap = overlapSkillCount(J, R);
-            double pct = (100.0 * overlap) / denom;
-            cout << "Resume ID " << R.id << "  Skill matched " << overlap << "/" << denom
-                 << " (" << (int)(pct + 0.5) << "%)\n";
+            const ScoredRes &m = matches[i];
+            const Resume &R = resumes.getArray()[m.rIdx];
+            cout << "Resume ID " << R.id << "  Skill matched "
+                 << m.overlap << "/" << denom << " (" << (int)(m.pct + 0.5) << "%)\n";
             cout << "Skills: [";
             for (int k = 0; k < R.skillCount; ++k)
                 cout << R.skills[k] << (k + 1 < R.skillCount ? ", " : "");
             cout << "]\n";
         }
         cout << "\n";
-    }
 
-    cout << "Top 5 best matched\n";
-    if (topFill == 0)
-    {
-        cout << "(no pairs met the threshold)\n";
-    }
-    else
-    {
-        for (int i = 0; i < topFill; ++i)
-        {
-            const Job &J = jobs.getArray()[top5[i].jobIdx];
-            const Resume &R = resumes.getArray()[top5[i].resIdx];
-            cout << "Job ID " << J.id << " (" << J.role << ") - Resume ID " << R.id
-                 << "  Skill matched " << top5[i].overlap << "/" << top5[i].denom
-                 << " (" << (int)(top5[i].pct + 0.5) << "%)\n";
-        }
+        delete[] matches;
     }
 }
 
