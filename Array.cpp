@@ -7,7 +7,19 @@
 #include <ctime>
 #include <cstdlib>
 #include <limits>
+#include <windows.h>
+#include <psapi.h>
 using namespace std;
+
+size_t getMemoryUsageKB()
+{
+    PROCESS_MEMORY_COUNTERS memCounter;
+    if (GetProcessMemoryInfo(GetCurrentProcess(), &memCounter, sizeof(memCounter)))
+    {
+        return memCounter.WorkingSetSize / 1024; // Convert bytes to KB
+    }
+    return 0;
+}
 
 enum SearchMode { MODE_LINEAR = 1, MODE_TWO_POINTER = 2 };
 SearchMode g_searchMode = MODE_TWO_POINTER;
@@ -948,6 +960,8 @@ void mainMenu(JobArray &jobs, ResumeArray &resumes)
         case 2:
         {
             int algo = promptSortAlgorithm();
+            size_t memBefore = getMemoryUsageKB();
+            auto start = chrono::high_resolution_clock::now();
             if (algo == 1)
             {
                 mergeSortJobs(jobs.getArray(), 0, jobs.getSize() - 1);
@@ -971,6 +985,11 @@ void mainMenu(JobArray &jobs, ResumeArray &resumes)
                 }
                 cout << "Jobs sorted using Insertion Sort.\n";
             }
+            auto end = chrono::high_resolution_clock::now(); // End timer
+            size_t memAfter = getMemoryUsageKB();
+            chrono::duration<double> duration = end - start;
+            cout << "\nExecution time: " << duration.count() << " seconds.\n";
+            cout << "Memory usage: " << (memAfter - memBefore) << " KB.\n";
             displayJobs(jobs);
             break;
         }
@@ -983,6 +1002,8 @@ void mainMenu(JobArray &jobs, ResumeArray &resumes)
         {
             int algo = promptSearchAlgorithm();
             g_searchMode = (algo == 1 ? MODE_LINEAR : MODE_TWO_POINTER);
+            size_t memBefore = getMemoryUsageKB();
+            auto start = chrono::high_resolution_clock::now();
 
             if (choice == 3)
                 promptAndSearchJobs(jobs, true);
@@ -994,6 +1015,11 @@ void mainMenu(JobArray &jobs, ResumeArray &resumes)
                 promptAndSearchResumes(resumes, false);
             else if (choice == 7)
                 runJobMatching(jobs, resumes);
+            auto end = chrono::high_resolution_clock::now();
+            size_t memAfter = getMemoryUsageKB();
+            chrono::duration<double> duration = end - start;
+            cout << "\nExecution time: " << duration.count() << " seconds.\n";
+            cout << "Memory usage: " << (memAfter - memBefore) << " KB.\n";
             break;
         }
 
