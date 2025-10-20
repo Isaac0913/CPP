@@ -783,6 +783,13 @@ void runJobMatching(const JobArray &jobs, const ResumeArray &resumes)
     cout << "Enter threshold % (0 - 100): ";
     cin >> thresholdPct;
 
+     // --- NEW: prepare user-entered skills for matching ---
+    string cleanUserSkills = normalizeText(skills);
+    string qUserSkills[50];
+    int qUserCount = 0;
+    extractSkills(cleanUserSkills, qUserSkills, qUserCount);
+    // -----------------------------------------------------
+
     cout << "\n===== Job Matching (" 
          << (g_searchMode == MODE_LINEAR ? "Linear" : "Two-pointer")
          << ") =====\n";
@@ -832,6 +839,22 @@ void runJobMatching(const JobArray &jobs, const ResumeArray &resumes)
             }
 
             if (overlap <= 0) continue;
+
+            // --- NEW: ensure resume also matches at least one user-entered skill ---
+            int userOverlap = 0;
+            if (qUserCount > 0)
+            {
+                if (g_searchMode == MODE_LINEAR)
+                    userOverlap = countSkillMatchesLinear(R.skills, R.skillCount, qUserSkills, qUserCount);
+                else
+                    userOverlap = countSkillMatchesTwoPointer(R.skills, R.skillCount, qUserSkills, qUserCount);
+            }
+            // If the user entered skills but resume doesn't match any, skip.
+            if (qUserCount > 0 && userOverlap == 0)
+            {
+                continue;
+            }
+            // ---------------------------------------------------------------
 
             double pct = (100.0 * overlap) / denom;
             if (pct < thresholdPct) continue;
@@ -901,6 +924,25 @@ void runJobMatching(const JobArray &jobs, const ResumeArray &resumes)
             for (int k = 0; k < R.skillCount; ++k)
                 cout << R.skills[k] << (k + 1 < R.skillCount ? ", " : "");
             cout << "]\n";
+            if (qUserCount > 0)
+            {
+                cout << "  | Matched user skills: [";
+                bool first = true;
+                for (int us = 0; us < qUserCount; ++us)
+                {
+                    for (int rk = 0; rk < R.skillCount; ++rk)
+                    {
+                        if (qUserSkills[us] == R.skills[rk])
+                        {
+                            if (!first) cout << ", ";
+                            cout << qUserSkills[us];
+                            first = false;
+                            break;
+                        }
+                    }
+                }
+                cout << "]";
+            }
         }
         cout << "\n";
 
