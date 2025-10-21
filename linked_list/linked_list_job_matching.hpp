@@ -5,8 +5,8 @@
 #include "job_resume_linked_list.hpp"
 #include "user_prompt.hpp"
 
-void runJobMatching(SearchMode searchMode, MatchQueryData &matchQuery, const JobLinkedList &jobs, const ResumeLinkedList &resumes);
+void linkedlistRunJobMatching(SearchMode searchMode, MatchQueryData &matchQuery, const JobLinkedList &jobs, const ResumeLinkedList &resumes);
 
-void sortScoreRes(ScoredRes rows[], int count);
+void sortScoreRes(lScoredRes rows[], int count);
 
 #endif

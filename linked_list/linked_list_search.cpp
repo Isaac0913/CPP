@@ -32,7 +32,7 @@ void searchJobs(SearchMode searchMode, bool sortedView, SearchQueryData &userQue
     }
 
     int maxSize = jobs.getSize();
-    ScoreRow *scoreRows = new ScoreRow[maxSize];
+    lScoreRow *scoreRows = new lScoreRow[maxSize];
     int r = 0;
 
     JobNodeSingly *current = jobsView->getHead();
@@ -40,17 +40,17 @@ void searchJobs(SearchMode searchMode, bool sortedView, SearchQueryData &userQue
 
     while (current != nullptr)
     {
-        const Job &job = current->data;
+        const lJob &job = current->data;
         int sHits = 0;
         if (searchMode == MODE_LINEAR)
         {
-            sHits = countSkillMatchesLinear(job.skills, job.skillCount, userQuery.skills, userQuery.skillCount);
+            sHits = lcountSkillMatchesLinear(job.skills, job.skillCount, userQuery.skills, userQuery.skillCount);
         }
         else if (searchMode == MODE_TWO_POINTER)
         {
-            sHits = countSkillMatchesTwoPointer(job.skills, job.skillCount, userQuery.skills, userQuery.skillCount);
+            sHits = lcountSkillMatchesTwoPointer(job.skills, job.skillCount, userQuery.skills, userQuery.skillCount);
         }
-        int rHits = roleHitCount(toLowerCopy(job.role), userQuery.roles, userQuery.roleCount);
+        int rHits = lroleHitCount(ltoLowerCopy(job.role), userQuery.roles, userQuery.roleCount);
 
         if (sHits != 0 || rHits != 0)
         {
@@ -82,7 +82,7 @@ void searchJobs(SearchMode searchMode, bool sortedView, SearchQueryData &userQue
     int limit = (r < 10 ? r : 10);
     for (int i = 0; i < limit; ++i)
     {
-        printJobLine(scoreRows[i].jobNode->data);
+        lprintJobLine(scoreRows[i].jobNode->data);
     }
 
     if (sortedView)
@@ -93,7 +93,7 @@ void searchJobs(SearchMode searchMode, bool sortedView, SearchQueryData &userQue
     delete[] scoreRows;
 }
 
-void searchResumes(SearchMode &searchMode, bool sortedView, SearchQueryData &userQuery, ResumeLinkedList &resume)
+void searchResumes(SearchMode searchMode, bool sortedView, SearchQueryData &userQuery, ResumeLinkedList &resume)
 {
     ResumeLinkedList *resumesView;
     if (!sortedView)
@@ -109,7 +109,7 @@ void searchResumes(SearchMode &searchMode, bool sortedView, SearchQueryData &use
     }
 
     int maxSize = resume.getSize();
-    ScoreRow scoreRows[maxSize];
+    lScoreRow scoreRows[maxSize];
     int r = 0;
 
     ResumeNodeSingly *current = resumesView->getHead();
@@ -117,17 +117,17 @@ void searchResumes(SearchMode &searchMode, bool sortedView, SearchQueryData &use
 
     while (current != nullptr)
     {
-        const Resume &resume = current->data;
+        const lResume &resume = current->data;
         int sHits = 0;
         if (searchMode == MODE_LINEAR)
         {
-            sHits = countSkillMatchesLinear(resume.skills, resume.skillCount, userQuery.skills, userQuery.skillCount);
+            sHits = lcountSkillMatchesLinear(resume.skills, resume.skillCount, userQuery.skills, userQuery.skillCount);
         }
         else if (searchMode == MODE_TWO_POINTER)
         {
-            sHits = countSkillMatchesTwoPointer(resume.skills, resume.skillCount, userQuery.skills, userQuery.skillCount);
+            sHits = lcountSkillMatchesTwoPointer(resume.skills, resume.skillCount, userQuery.skills, userQuery.skillCount);
         }
-        int rHits = roleHitCount(toLowerCopy(resume.raw_text), userQuery.roles, userQuery.roleCount);
+        int rHits = lroleHitCount(ltoLowerCopy(resume.raw_text), userQuery.roles, userQuery.roleCount);
 
         if (sHits != 0 || rHits != 0)
         {
@@ -157,7 +157,7 @@ void searchResumes(SearchMode &searchMode, bool sortedView, SearchQueryData &use
     int limit = (r < 10 ? r : 10);
     for (int i = 0; i < limit; ++i)
     {
-        printResumeLine(scoreRows[i].resumeNode->data);
+        lprintResumeLine(scoreRows[i].resumeNode->data);
     }
 
     if (sortedView)
@@ -168,7 +168,7 @@ void searchResumes(SearchMode &searchMode, bool sortedView, SearchQueryData &use
 
 // placed it here because it's inherently a part of search
 // this is selection sort
-void sortScoreRows(ScoreRow rows[], int count, SearchType type)
+void sortScoreRows(lScoreRow rows[], int count, SearchType type)
 {
     for (int i = 0; i < count - 1; ++i)
     {
@@ -203,7 +203,7 @@ void sortScoreRows(ScoreRow rows[], int count, SearchType type)
 
         if (best != i)
         {
-            ScoreRow tmp = rows[best];
+            lScoreRow tmp = rows[best];
             rows[best] = rows[i];
             rows[i] = tmp;
         }

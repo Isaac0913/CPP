@@ -5,7 +5,7 @@
 #include <chrono>
 #include <ctime>
 
-size_t getMemoryUsageKB()
+size_t lgetMemoryUsageKB()
 {
     PROCESS_MEMORY_COUNTERS memCounter;
     if (GetProcessMemoryInfo(GetCurrentProcess(), &memCounter, sizeof(memCounter)))
@@ -17,13 +17,13 @@ size_t getMemoryUsageKB()
 
 PerformanceResult measurePerformance(const function<void()> &taskToMeasure)
 {
-    size_t memBefore = getMemoryUsageKB();
+    size_t memBefore = lgetMemoryUsageKB();
     auto start = chrono::high_resolution_clock::now();
 
     taskToMeasure();
 
     auto end = chrono::high_resolution_clock::now();
-    size_t memAfter = getMemoryUsageKB();
+    size_t memAfter = lgetMemoryUsageKB();
     chrono::duration<double> duration = end - start;
     PerformanceResult result;
     result.duration_seconds = duration.count();

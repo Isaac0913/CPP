@@ -1,7 +1,7 @@
 #include "string_utils.hpp"
 #include "cleaner_loader.hpp"
 
-string toLowerCopy(const string &s)
+string ltoLowerCopy(const string &s)
 {
     string out = s;
     for (size_t i = 0; i < out.size(); ++i)
@@ -9,7 +9,7 @@ string toLowerCopy(const string &s)
     return out;
 }
 
-void sortStringArr(string arr[], int n)
+void lsortStringArr(string arr[], int n)
 {
     for (int i = 1; i < n; i++)
     {
@@ -37,7 +37,7 @@ string cleanQuotes(const string &s)
 
 // note that this function returns only the count of the tokenized words
 // used for user-entered job roles
-int tokenizeWords(const string &s, string outTokens[], int maxTokens)
+int ltokenizeWords(const string &s, string outTokens[], int maxTokens)
 {
     // data analyst software engineer
     // ['data', 'analyst', ]
@@ -59,12 +59,12 @@ int tokenizeWords(const string &s, string outTokens[], int maxTokens)
     return count;
 }
 
-string removeSkillsFromQuery(const string &normQuery)
+string lremoveSkillsFromQuery(const string &normQuery)
 {
     string s = normQuery;
     for (int i = 0; i < SKILL_COUNT; ++i)
     {
-        const string skill = SKILLS[i];
+        const string skill = lSKILLS[i];
         size_t pos = 0;
         while (true)
         {

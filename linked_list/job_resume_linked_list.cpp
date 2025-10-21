@@ -67,7 +67,7 @@ JobLinkedList::~JobLinkedList()
     }
 }
 
-void JobLinkedList::insertAtFront(const Job &j)
+void JobLinkedList::insertAtFront(const lJob &j)
 {
     JobNodeSingly *newNode = new JobNodeSingly(j);
     newNode->next = head;
@@ -79,7 +79,7 @@ void JobLinkedList::insertAtFront(const Job &j)
     size++;
 }
 
-void JobLinkedList::insertAtEnd(const Job &j)
+void JobLinkedList::insertAtEnd(const lJob &j)
 {
     JobNodeSingly *newNode = new JobNodeSingly(j);
 
@@ -120,8 +120,8 @@ void JobLinkedList::display(int count) const
     int index = 1;
     while (current != nullptr && index <= count)
     {
-        const Job &j = current->data;
-        displayJobMultiLine(j, index);
+        const lJob &j = current->data;
+        ldisplayJobMultiLine(j, index);
         current = current->next;
         index++;
     }
@@ -145,7 +145,7 @@ ResumeLinkedList::~ResumeLinkedList()
     }
 }
 
-void ResumeLinkedList::insertAtFront(const Resume &r)
+void ResumeLinkedList::insertAtFront(const lResume &r)
 {
     ResumeNodeSingly *newNode = new ResumeNodeSingly(r);
     newNode->next = head;
@@ -157,7 +157,7 @@ void ResumeLinkedList::insertAtFront(const Resume &r)
     size++;
 }
 
-void ResumeLinkedList::insertAtEnd(const Resume &r)
+void ResumeLinkedList::insertAtEnd(const lResume &r)
 {
     ResumeNodeSingly *newNode = new ResumeNodeSingly{r};
 
@@ -198,8 +198,8 @@ void ResumeLinkedList::display(int count) const
     int index = 1;
     while (current != nullptr && index <= count)
     {
-        const Resume &r = current->data;
-        displayResumeMultiLine(r, index);
+        const lResume &r = current->data;
+        ldisplayResumeMultiLine(r, index);
         current = current->next;
         index++;
     }

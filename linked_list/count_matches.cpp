@@ -1,6 +1,6 @@
 #include "count_matches.hpp"
 
-int countSkillMatchesLinear(const string a[], int na, const string b[], int nb)
+int lcountSkillMatchesLinear(const string a[], int na, const string b[], int nb)
 {
     int hits = 0;
     for (int i = 0; i < na; ++i)
@@ -17,7 +17,7 @@ int countSkillMatchesLinear(const string a[], int na, const string b[], int nb)
     return hits;
 }
 
-int countSkillMatchesTwoPointer(const string a[], int na, const string b[], int nb)
+int lcountSkillMatchesTwoPointer(const string a[], int na, const string b[], int nb)
 {
     int i = 0, j = 0, hits = 0;
     while (i < na && j < nb)
@@ -36,7 +36,7 @@ int countSkillMatchesTwoPointer(const string a[], int na, const string b[], int 
     return hits;
 }
 
-int roleHitCount(const string &roleLower, const string roleTokens[], int tokCount)
+int lroleHitCount(const string &roleLower, const string roleTokens[], int tokCount)
 {
     int hits = 0;
     for (int i = 0; i < tokCount; ++i)

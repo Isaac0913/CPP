@@ -3,7 +3,7 @@
 #include "user_prompt.hpp"
 #include <iostream>
 
-void displayJobMultiLine(const Job &j, int index)
+void ldisplayJobMultiLine(const lJob &j, int index)
 {
     cout << index << ". ID: " << j.id << "\n   Role: " << j.role << "\n   Skills: [";
     for (int i = 0; i < j.skillCount; ++i)
@@ -15,7 +15,7 @@ void displayJobMultiLine(const Job &j, int index)
     cout << "]\n   Raw: " << j.raw_text << "\n\n";
 }
 
-void displayResumeMultiLine(const Resume &r, int index)
+void ldisplayResumeMultiLine(const lResume &r, int index)
 {
     cout << index++ << ". ID: " << r.id << "\n   Skills: [";
     for (int i = 0; i < r.skillCount; ++i)
@@ -27,7 +27,7 @@ void displayResumeMultiLine(const Resume &r, int index)
     cout << "]\n   Raw: " << r.raw_text << "\n\n";
 }
 
-void printJobLine(const Job &j)
+void lprintJobLine(const lJob &j)
 {
     cout << j.id << "  " << j.role << "  [";
     for (int k = 0; k < j.skillCount; k++)
@@ -39,7 +39,7 @@ void printJobLine(const Job &j)
     cout << "]\n";
 }
 
-void printResumeLine(const Resume &r)
+void lprintResumeLine(const lResume &r)
 {
     cout << r.id << "  [";
     for (int k = 0; k < r.skillCount; k++)
@@ -51,7 +51,7 @@ void printResumeLine(const Resume &r)
     cout << "]\n";
 }
 
-void displayMatchedResume(const Resume &R, const ScoredRes &m, const MatchQueryData &matchQuery, int denom, int index)
+void ldisplayMatchedResume(const lResume &R, const lScoredRes &m, const MatchQueryData &matchQuery, int denom, int index)
 {
     cout << index + 1 << ". Resume ID " << R.id
          << "  Skill matched " << m.overlap << "/" << denom
@@ -89,7 +89,7 @@ void displayMatchedResume(const Resume &R, const ScoredRes &m, const MatchQueryD
     cout << "\n";
 }
 
-void displayNoMatches()
+void ldisplayNoMatches()
 {
     cout << "No matches found!" << endl
          << endl;

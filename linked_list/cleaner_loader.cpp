@@ -10,7 +10,7 @@
 const string JOB_DESC_FILENAME = "job_description.csv";
 const string RESUME_FILENAME = "resume.csv";
 
-const char *SKILLS[] = {
+const char *lSKILLS[] = {
     "sql", "mysql", "postgresql", "postgres", "mongodb", "oracle", "sqlite", "redis", "nosql", "database",
     "powerbi", "power bi", "excel", "tableau", "d3", "matplotlib", "seaborn", "plotly",
     "python", "java", "javascript", "c++", "c#", "php", "ruby", "go", "rust",
@@ -24,10 +24,10 @@ const char *SKILLS[] = {
     "systemdesign", "system design", "agile", "scrum", "kanban",
     "stakeholdermanagement", "stakeholder management", "userstories", "user stories",
     "productroadmap", "product roadmap", "statistics", "computervision", "computer vision", "cloud"};
-const int SKILL_COUNT = sizeof(SKILLS) / sizeof(SKILLS[0]);
+const int SKILL_COUNT = sizeof(lSKILLS) / sizeof(lSKILLS[0]);
 
 // ----------- Normalize text ------------
-string normalizeText(string input)
+string lnormalizeText(string input)
 {
     transform(input.begin(), input.end(), input.begin(), ::tolower);
     replace_if(input.begin(), input.end(), [](unsigned char c)
@@ -71,12 +71,12 @@ string normalizeText(string input)
     return clean;
 }
 
-void extractSkills(const string &clean_line, string skillArray[], int &skillCount)
+void lextractSkills(const string &clean_line, string skillArray[], int &skillCount)
 {
     skillCount = 0;
     for (int s = 0; s < SKILL_COUNT; s++)
     {
-        string skill = SKILLS[s];
+        string skill = lSKILLS[s];
         size_t pos = clean_line.find(skill);
         while (pos != string::npos)
         {
@@ -95,7 +95,7 @@ void extractSkills(const string &clean_line, string skillArray[], int &skillCoun
             pos = clean_line.find(skill, pos + 1);
         }
     }
-    sortStringArr(skillArray, skillCount);
+    lsortStringArr(skillArray, skillCount);
 }
 
 void loadCSV(const string &filename, const function<void(const string &line, const string &clean, int id)> &processLine)
@@ -120,7 +120,7 @@ void loadCSV(const string &filename, const function<void(const string &line, con
         if (line.empty())
             continue;
 
-        string clean = normalizeText(line);
+        string clean = lnormalizeText(line);
         processLine(line, clean, id++);
     }
 
@@ -131,7 +131,7 @@ void loadJobDescIntoLinkedList(JobLinkedList &jobsLinkedList)
 {
     loadCSV(JOB_DESC_FILENAME, [&](const string &line, const string &clean, int id)
             {
-        Job j;
+        lJob j;
         j.id = id;
         j.raw_text = line;
 
@@ -141,7 +141,7 @@ void loadJobDescIntoLinkedList(JobLinkedList &jobsLinkedList)
         j.role = w1 + " " + w2;
         j.role = cleanQuotes(j.role);
 
-        extractSkills(clean, j.skills, j.skillCount);
+        lextractSkills(clean, j.skills, j.skillCount);
         
         if (j.skillCount > 0)
             jobsLinkedList.insertAtEnd(j); });
@@ -153,11 +153,11 @@ void loadResumeIntoLinkedList(ResumeLinkedList &resumesLinkedList)
 {
     loadCSV(RESUME_FILENAME, [&](const string &line, const string &clean, int id)
             {
-        Resume r;
+        lResume r;
         r.id = id;
         r.raw_text = line;
 
-        extractSkills(clean, r.skills, r.skillCount);
+        lextractSkills(clean, r.skills, r.skillCount);
 
         if (r.skillCount > 0)
             resumesLinkedList.insertAtEnd(r); });

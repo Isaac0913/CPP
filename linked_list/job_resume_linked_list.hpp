@@ -18,8 +18,8 @@ public:
     JobLinkedList(const JobLinkedList &other);
     ~JobLinkedList();
     JobLinkedList &operator=(const JobLinkedList &other);
-    void insertAtFront(const Job &j);
-    void insertAtEnd(const Job &j);
+    void insertAtFront(const lJob &j);
+    void insertAtEnd(const lJob &j);
     int getSize() const; // cannot modify object state (const JobLinkedList* this)
     JobNodeSingly *getHead() const;
     JobNodeSingly *getTail() const;
@@ -41,8 +41,8 @@ public:
     ResumeLinkedList(const ResumeLinkedList &other);
     ~ResumeLinkedList();
     ResumeLinkedList &operator=(const ResumeLinkedList &other);
-    void insertAtFront(const Resume &r);
-    void insertAtEnd(const Resume &r);
+    void insertAtFront(const lResume &r);
+    void insertAtEnd(const lResume &r);
     int getSize() const;
     ResumeNodeSingly *getHead() const;
     ResumeNodeSingly *getTail() const;

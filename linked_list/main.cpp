@@ -13,7 +13,7 @@ using namespace std;
 // When execute code, must include { g++ *.cpp -o main -lpsapi } like this:
 // cd "c:\Users\...\...\" ; if ($?) { g++ *.cpp -o main -lpsapi } ; if ($?) { .\main }
 
-int main()
+int lmain()
 {
     JobLinkedList jobs;
     ResumeLinkedList resumes;
@@ -77,12 +77,12 @@ int main()
     // printPerformance(result);
 
     SearchMode searchMode;
-    int searchAlgo = promptSearchAlgorithm();
+    int searchAlgo = lpromptSearchAlgorithm();
     searchAlgo == 1 ? searchMode = MODE_LINEAR : searchMode = MODE_TWO_POINTER;
     MatchQueryData matchQuery = promptMatchQuery(true, searchMode); // rmb to set true to clear buffer
     PerformanceResult result;
     result = measurePerformance([&]()
-                                { runJobMatching(searchMode, matchQuery, jobs, resumes); }
+                                { linkedlistRunJobMatching(searchMode, matchQuery, jobs, resumes); }
 
     );
     printPerformance(result);

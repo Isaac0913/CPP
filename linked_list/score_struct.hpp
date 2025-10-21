@@ -3,7 +3,7 @@
 #include "job_resume_node.hpp"
 
 // slightly different from array version
-struct ScoreRow
+struct lScoreRow
 {
     JobNodeSingly *jobNode;
     ResumeNodeSingly *resumeNode;
@@ -13,7 +13,7 @@ struct ScoreRow
 };
 
 // used in matching
-struct ScoredRes
+struct lScoredRes
 {
     ResumeNodeSingly *resumeNode;
     int rIdx;

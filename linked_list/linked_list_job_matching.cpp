@@ -5,7 +5,7 @@
 #include "display_output.hpp"
 #include <iostream>
 
-void runJobMatching(SearchMode searchMode, MatchQueryData &matchQuery, const JobLinkedList &jobs, const ResumeLinkedList &resumes)
+void linkedlistRunJobMatching(SearchMode searchMode, MatchQueryData &matchQuery, const JobLinkedList &jobs, const ResumeLinkedList &resumes)
 {
     int jobMaxSize = jobs.getSize();
     int resumeMaxSize = resumes.getSize();
@@ -15,9 +15,9 @@ void runJobMatching(SearchMode searchMode, MatchQueryData &matchQuery, const Job
 
     while (jobCurrent != nullptr)
     {
-        const Job &J = jobCurrent->data;
+        const lJob &J = jobCurrent->data;
 
-        if (toLowerCopy(J.role).find(toLowerCopy(matchQuery.jobRole)) == string::npos)
+        if (ltoLowerCopy(J.role).find(ltoLowerCopy(matchQuery.jobRole)) == string::npos)
         {
             jobCurrent = jobCurrent->next;
             continue;
@@ -26,11 +26,11 @@ void runJobMatching(SearchMode searchMode, MatchQueryData &matchQuery, const Job
         int jobQuerySkillCount;
         if (searchMode == MODE_LINEAR)
         {
-            jobQuerySkillCount = countSkillMatchesLinear(J.skills, J.skillCount, matchQuery.skills, matchQuery.skillCount);
+            jobQuerySkillCount = lcountSkillMatchesLinear(J.skills, J.skillCount, matchQuery.skills, matchQuery.skillCount);
         }
         else
         {
-            jobQuerySkillCount = countSkillMatchesTwoPointer(J.skills, J.skillCount, matchQuery.skills, matchQuery.skillCount);
+            jobQuerySkillCount = lcountSkillMatchesTwoPointer(J.skills, J.skillCount, matchQuery.skills, matchQuery.skillCount);
         }
 
         if (jobQuerySkillCount != matchQuery.skillCount)
@@ -40,7 +40,7 @@ void runJobMatching(SearchMode searchMode, MatchQueryData &matchQuery, const Job
         }
 
         const int denom = (J.skillCount > 0 ? J.skillCount : 1);
-        ScoredRes *matches = new ScoredRes[resumeMaxSize];
+        lScoredRes *matches = new lScoredRes[resumeMaxSize];
         int matchCount = 0;
 
         ResumeNodeSingly *resumeCurrent = resumes.getHead();
@@ -48,17 +48,17 @@ void runJobMatching(SearchMode searchMode, MatchQueryData &matchQuery, const Job
 
         while (resumeCurrent != nullptr)
         {
-            const Resume &R = resumeCurrent->data;
+            const lResume &R = resumeCurrent->data;
             int overlap = 0;
             int userOverlap = 0;
 
             if (searchMode == MODE_LINEAR)
             {
-                overlap = countSkillMatchesLinear(J.skills, J.skillCount, R.skills, R.skillCount);
+                overlap = lcountSkillMatchesLinear(J.skills, J.skillCount, R.skills, R.skillCount);
             }
             else
             {
-                overlap = countSkillMatchesTwoPointer(J.skills, J.skillCount, R.skills, R.skillCount);
+                overlap = lcountSkillMatchesTwoPointer(J.skills, J.skillCount, R.skills, R.skillCount);
             }
 
             if (overlap <= 0)
@@ -72,11 +72,11 @@ void runJobMatching(SearchMode searchMode, MatchQueryData &matchQuery, const Job
             {
                 if (searchMode == MODE_LINEAR)
                 {
-                    userOverlap = countSkillMatchesLinear(R.skills, R.skillCount, matchQuery.skills, matchQuery.skillCount);
+                    userOverlap = lcountSkillMatchesLinear(R.skills, R.skillCount, matchQuery.skills, matchQuery.skillCount);
                 }
                 else
                 {
-                    userOverlap = countSkillMatchesTwoPointer(R.skills, R.skillCount, matchQuery.skills, matchQuery.skillCount);
+                    userOverlap = lcountSkillMatchesTwoPointer(R.skills, R.skillCount, matchQuery.skills, matchQuery.skillCount);
                 }
 
                 if (userOverlap == 0 && userOverlap != matchQuery.skillCount)
@@ -127,9 +127,9 @@ void runJobMatching(SearchMode searchMode, MatchQueryData &matchQuery, const Job
         int show = (matchCount < 10 ? matchCount : 10);
         for (int i = 0; i < show; ++i)
         {
-            const ScoredRes &m = matches[i];
-            const Resume &R = m.resumeNode->data;
-            displayMatchedResume(R, m, matchQuery, denom, i);
+            const lScoredRes &m = matches[i];
+            const lResume &R = m.resumeNode->data;
+            ldisplayMatchedResume(R, m, matchQuery, denom, i);
         }
         cout << "\n";
         delete[] matches;
@@ -138,11 +138,11 @@ void runJobMatching(SearchMode searchMode, MatchQueryData &matchQuery, const Job
 
     if (totalMatchCount == 0)
     {
-        displayNoMatches();
+        ldisplayNoMatches();
     }
 }
 
-void sortScoreRes(ScoredRes rows[], int count)
+void sortScoreRes(lScoredRes rows[], int count)
 {
     for (int i = 0; i < count - 1; ++i)
     {
@@ -168,7 +168,7 @@ void sortScoreRes(ScoredRes rows[], int count)
 
         if (best != i)
         {
-            ScoredRes tmp = rows[best];
+            lScoredRes tmp = rows[best];
             rows[best] = rows[i];
             rows[i] = tmp;
         }

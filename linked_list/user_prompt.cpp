@@ -4,7 +4,7 @@
 #include <iostream>
 #include <limits>
 
-int promptSortAlgorithm()
+int lpromptSortAlgorithm()
 {
     int c;
     cout << "Choose sorting algorithm:\n"
@@ -18,7 +18,7 @@ int promptSortAlgorithm()
 }
 
 // this can be used to set the SearchMode enum value
-int promptSearchAlgorithm()
+int lpromptSearchAlgorithm()
 {
     int c;
     cout << "Choose search algorithm:\n"
@@ -48,14 +48,14 @@ SearchQueryData promptSearchQuery(bool clearBuffer)
 SearchQueryData parseSearchQuery(const string &userQuery)
 {
     SearchQueryData queryData{};
-    string clean = normalizeText(userQuery);
+    string clean = lnormalizeText(userQuery);
 
-    extractSkills(clean, queryData.skills, queryData.skillCount);
-    string roleOnly = removeSkillsFromQuery(clean);
-    queryData.roleCount = tokenizeWords(roleOnly, queryData.roles, 50);
+    lextractSkills(clean, queryData.skills, queryData.skillCount);
+    string roleOnly = lremoveSkillsFromQuery(clean);
+    queryData.roleCount = ltokenizeWords(roleOnly, queryData.roles, 50);
     for (int i = 0; i < queryData.roleCount; ++i)
     {
-        queryData.roles[i] = toLowerCopy(queryData.roles[i]);
+        queryData.roles[i] = ltoLowerCopy(queryData.roles[i]);
     }
 
     return queryData;
@@ -86,8 +86,8 @@ MatchQueryData promptMatchQuery(bool clearBuffer, SearchMode searchAlgo)
     cout << "Skills entered: ";
     string userQuerySkills;
     getline(cin, userQuerySkills);
-    string clean = normalizeText(userQuerySkills);
-    extractSkills(clean, queryData.skills, queryData.skillCount);
+    string clean = lnormalizeText(userQuerySkills);
+    lextractSkills(clean, queryData.skills, queryData.skillCount);
 
     double thresholdPct = 0.0;
     cout << "Enter threshold % (0 - 100): ";

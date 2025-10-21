@@ -4,10 +4,10 @@
 #include <string>
 using namespace std;
 
-int countSkillMatchesLinear(const string a[], int na, const string b[], int nb);
+int lcountSkillMatchesLinear(const string a[], int na, const string b[], int nb);
 
-int countSkillMatchesTwoPointer(const string a[], int na, const string b[], int nb);
+int lcountSkillMatchesTwoPointer(const string a[], int na, const string b[], int nb);
 
-int roleHitCount(const string &roleLower, const string roleTokens[], int tokCount);
+int lroleHitCount(const string &roleLower, const string roleTokens[], int tokCount);
 
 #endif

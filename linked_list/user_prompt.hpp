@@ -37,9 +37,9 @@ struct MatchQueryData
     double thresholdPct;
 };
 
-int promptSortAlgorithm();
+int lpromptSortAlgorithm();
 
-int promptSearchAlgorithm();
+int lpromptSearchAlgorithm();
 
 SearchQueryData promptSearchQuery(bool clearBuffer);
 
