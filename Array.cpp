@@ -11,6 +11,21 @@
 #include <psapi.h>
 using namespace std;
 
+bool containsAllSkillsTwoPointer(const string a[], int na, const string b[], int nb)
+{
+    int i = 0, j = 0;
+    while (i < na && j < nb)
+    {
+        if (a[i] == b[j]) { ++i; ++j; }
+        else if (a[i] < b[j]) { ++i; }
+        else { 
+            // a[i] > b[j] means the job/resume is missing b[j]
+            return false;
+        }
+    }
+    return (j == nb); // true only if all skills in b were found in a
+}
+
 size_t getMemoryUsageKB()
 {
     PROCESS_MEMORY_COUNTERS memCounter;
@@ -806,6 +821,12 @@ void runJobMatching(const JobArray &jobs, const ResumeArray &resumes)
         // only jobs whose title matches the entered job position
         if (toLowerCopy(J.role).find(toLowerCopy(jobPosition)) == string::npos)
             continue;
+                // NEW: Require the job to contain ALL user-entered skills
+            if (qUserCount > 0)
+            {
+            if (!containsAllSkillsTwoPointer(J.skills, J.skillCount, qUserSkills, qUserCount))
+                continue;
+            }
 
         const int denom = (J.skillCount > 0 ? J.skillCount : 1);
 
@@ -841,19 +862,13 @@ void runJobMatching(const JobArray &jobs, const ResumeArray &resumes)
             if (overlap <= 0) continue;
 
             // --- NEW: ensure resume also matches at least one user-entered skill ---
-            int userOverlap = 0;
+            // NEW: Require the resume to contain ALL user-entered skills
             if (qUserCount > 0)
             {
-                if (g_searchMode == MODE_LINEAR)
-                    userOverlap = countSkillMatchesLinear(R.skills, R.skillCount, qUserSkills, qUserCount);
-                else
-                    userOverlap = countSkillMatchesTwoPointer(R.skills, R.skillCount, qUserSkills, qUserCount);
+                if (!containsAllSkillsTwoPointer(R.skills, R.skillCount, qUserSkills, qUserCount))
+                    continue;
             }
-            // If the user entered skills but resume doesn't match any, skip.
-            if (qUserCount > 0 && userOverlap == 0)
-            {
-                continue;
-            }
+
             // ---------------------------------------------------------------
 
             double pct = (100.0 * overlap) / denom;
@@ -941,7 +956,7 @@ void runJobMatching(const JobArray &jobs, const ResumeArray &resumes)
                         }
                     }
                 }
-                cout << "]";
+                cout << "]\n";
             }
         }
         cout << "\n";
