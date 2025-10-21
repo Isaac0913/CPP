@@ -1,4 +1,6 @@
 #include "display_output.hpp"
+#include "score_struct.hpp"
+#include "user_prompt.hpp"
 #include <iostream>
 
 void displayJobMultiLine(const Job &j, int index)
@@ -47,4 +49,48 @@ void printResumeLine(const Resume &r)
             cout << ", ";
     }
     cout << "]\n";
+}
+
+void displayMatchedResume(const Resume &R, const ScoredRes &m, const MatchQueryData &matchQuery, int denom, int index)
+{
+    cout << index + 1 << ". Resume ID " << R.id
+         << "  Skill matched " << m.overlap << "/" << denom
+         << " (" << (int)(m.pct + 0.5) << "%)\n";
+
+    cout << "   Skills: [";
+    for (int k = 0; k < R.skillCount; ++k)
+    {
+        cout << R.skills[k];
+        if (k < R.skillCount - 1)
+            cout << ", ";
+    }
+    cout << "]\n";
+
+    if (matchQuery.skillCount > 0)
+    {
+        cout << "   | Matched user skills: [";
+        bool first = true;
+        for (int us = 0; us < matchQuery.skillCount; ++us)
+        {
+            for (int rk = 0; rk < R.skillCount; ++rk)
+            {
+                if (matchQuery.skills[us] == R.skills[rk])
+                {
+                    if (!first)
+                        cout << ", ";
+                    cout << matchQuery.skills[us];
+                    first = false;
+                    break;
+                }
+            }
+        }
+        cout << "]\n";
+    }
+    cout << "\n";
+}
+
+void displayNoMatches()
+{
+    cout << "No matches found!" << endl
+         << endl;
 }

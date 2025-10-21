@@ -3,6 +3,9 @@
 #include "measure_performance.hpp"
 #include "linked_list_insertion_sort.hpp"
 #include "string_utils.hpp"
+#include "linked_list_search.hpp"
+#include "linked_list_job_matching.hpp"
+#include "user_prompt.hpp"
 #include <iostream>
 #include <string>
 using namespace std;
@@ -21,8 +24,8 @@ int main()
     cout << "Loading resumes...\n";
     loadResumeIntoLinkedList(resumes);
 
-    // jobs.display(10);
-    // resumes.display(10);
+    jobs.display(10);
+    resumes.display(10);
 
     // execute one by one/one at a time to get accurate measurement
     // PerformanceResult displayJobResult =
@@ -53,5 +56,36 @@ int main()
     // printPerformance(result);
 
     // mainMenu(jobs, resumes);
+
+    // search:
+
+    // SearchMode searchLinear, searchTwoPointer;
+    // searchLinear = MODE_LINEAR;
+    // searchTwoPointer = MODE_TWO_POINTER;
+
+    // SearchType searchJob, searchResume;
+    // searchJob = TYPE_JOBS;
+    // searchResume = TYPE_RESUME;
+
+    // SearchQueryData userQuery = promptSearchQuery(false);
+
+    // PerformanceResult result;
+    // result = measurePerformance([&]()
+    //                             { searchJobs(searchLinear, true, userQuery, jobs); }
+
+    // );
+    // printPerformance(result);
+
+    SearchMode searchMode;
+    int searchAlgo = promptSearchAlgorithm();
+    searchAlgo == 1 ? searchMode = MODE_LINEAR : searchMode = MODE_TWO_POINTER;
+    MatchQueryData matchQuery = promptMatchQuery(true, searchMode); // rmb to set true to clear buffer
+    PerformanceResult result;
+    result = measurePerformance([&]()
+                                { runJobMatching(searchMode, matchQuery, jobs, resumes); }
+
+    );
+    printPerformance(result);
+
     return 0;
 }

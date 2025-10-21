@@ -32,9 +32,12 @@ int promptSearchAlgorithm()
 }
 
 // use this when prompting for search query
-SearchQueryData promptSearchQuery()
+SearchQueryData promptSearchQuery(bool clearBuffer)
 {
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    if (clearBuffer)
+    {
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
     cout << "Enter search text (skills/keywords): ";
     string query;
     getline(cin, query);
@@ -54,6 +57,49 @@ SearchQueryData parseSearchQuery(const string &userQuery)
     {
         queryData.roles[i] = toLowerCopy(queryData.roles[i]);
     }
+
+    return queryData;
+}
+
+// struct MatchQueryData
+// {
+//     string jobRole;
+//     string skills[50];
+//     int skillCount;
+//     double thresholdPct;
+// };
+
+MatchQueryData promptMatchQuery(bool clearBuffer, SearchMode searchAlgo)
+{
+    if (clearBuffer)
+    {
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
+
+    MatchQueryData queryData{};
+
+    cout << "Job position entered: ";
+    string jobPosition;
+    getline(cin, jobPosition);
+    queryData.jobRole = jobPosition;
+
+    cout << "Skills entered: ";
+    string userQuerySkills;
+    getline(cin, userQuerySkills);
+    string clean = normalizeText(userQuerySkills);
+    extractSkills(clean, queryData.skills, queryData.skillCount);
+
+    double thresholdPct = 0.0;
+    cout << "Enter threshold % (0 - 100): ";
+    cin >> thresholdPct;
+    queryData.thresholdPct = thresholdPct;
+
+    cout << "\n===== Job Matching ("
+         << (searchAlgo == MODE_LINEAR ? "Linear" : "Two-pointer")
+         << ") =====\n";
+    cout << "Job position entered: " << jobPosition << "\n";
+    cout << "Skills entered: " << userQuerySkills << "\n";
+    cout << "Threshold: " << thresholdPct << "%\n\n";
 
     return queryData;
 }

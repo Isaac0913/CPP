@@ -6,16 +6,19 @@
 struct ScoreRow
 {
     JobNodeSingly *jobNode;
+    ResumeNodeSingly *resumeNode;
     int idx;
     int skillHits;
     int roleHits;
 };
 
+// used in matching
 struct ScoredRes
 {
-    int idx;
-    int skillHits;
-    int roleHits;
+    ResumeNodeSingly *resumeNode;
+    int rIdx;
+    int overlap;
+    double pct;
 };
 
 #endif
