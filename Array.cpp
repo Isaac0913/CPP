@@ -1165,7 +1165,7 @@ int main()
             cout << "Exiting program...\n";
             break;
         default:
-            cout << "Invalid choice. Please run the program again.\n";
+            cout << "Invalid choice.\n";
         }
     } while (dsChoice != 0);
 
