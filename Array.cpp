@@ -9,6 +9,9 @@
 #include <limits>
 #include <windows.h>
 #include <psapi.h>
+
+#include "linked_list/linked_list_menu.hpp"
+
 using namespace std;
 
 bool containsAllSkillsTwoPointer(const string a[], int na, const string b[], int nb)
@@ -16,9 +19,17 @@ bool containsAllSkillsTwoPointer(const string a[], int na, const string b[], int
     int i = 0, j = 0;
     while (i < na && j < nb)
     {
-        if (a[i] == b[j]) { ++i; ++j; }
-        else if (a[i] < b[j]) { ++i; }
-        else { 
+        if (a[i] == b[j])
+        {
+            ++i;
+            ++j;
+        }
+        else if (a[i] < b[j])
+        {
+            ++i;
+        }
+        else
+        {
             // a[i] > b[j] means the job/resume is missing b[j]
             return false;
         }
@@ -36,7 +47,11 @@ size_t getMemoryUsageKB()
     return 0;
 }
 
-enum SearchMode { MODE_LINEAR = 1, MODE_TWO_POINTER = 2 };
+enum SearchMode
+{
+    MODE_LINEAR = 1,
+    MODE_TWO_POINTER = 2
+};
 SearchMode g_searchMode = MODE_TWO_POINTER;
 
 // ----------- Skill dictionary (array) ------------
@@ -480,7 +495,6 @@ int countSkillMatchesLinear(const string a[], int na, const string b[], int nb)
     return hits;
 }
 
-
 int countSkillMatchesTwoPointer(const string a[], int na, const string b[], int nb)
 {
     int i = 0, j = 0, hits = 0;
@@ -572,7 +586,12 @@ void searchJobsTwoPointer(const JobArray &jobs, const string &userQuery, bool us
         cout << "------sorted----\nsorted location (location is the ID)\n";
     }
 
-    struct ScoreRow { int idx; int skillHits; int roleHits; };
+    struct ScoreRow
+    {
+        int idx;
+        int skillHits;
+        int roleHits;
+    };
 
     ScoreRow rows[20000];
     int r = 0;
@@ -680,7 +699,12 @@ void searchResumesTwoPointer(const ResumeArray &resumes, const string &userQuery
         cout << "------sorted----\nsorted location (location is the ID)\n";
     }
 
-    struct ScoreRow { int idx; int skillHits; int roleHits; };
+    struct ScoreRow
+    {
+        int idx;
+        int skillHits;
+        int roleHits;
+    };
     ScoreRow rows[20000];
     int r = 0;
 
@@ -798,21 +822,26 @@ void runJobMatching(const JobArray &jobs, const ResumeArray &resumes)
     cout << "Enter threshold % (0 - 100): ";
     cin >> thresholdPct;
 
-     // --- NEW: prepare user-entered skills for matching ---
+    // --- NEW: prepare user-entered skills for matching ---
     string cleanUserSkills = normalizeText(skills);
     string qUserSkills[50];
     int qUserCount = 0;
     extractSkills(cleanUserSkills, qUserSkills, qUserCount);
     // -----------------------------------------------------
 
-    cout << "\n===== Job Matching (" 
+    cout << "\n===== Job Matching ("
          << (g_searchMode == MODE_LINEAR ? "Linear" : "Two-pointer")
          << ") =====\n";
     cout << "Job position entered: " << jobPosition << "\n";
     cout << "Skills entered: " << skills << "\n";
     cout << "Threshold: " << thresholdPct << "%\n\n";
 
-    struct ScoredRes { int rIdx; int overlap; double pct; };
+    struct ScoredRes
+    {
+        int rIdx;
+        int overlap;
+        double pct;
+    };
 
     for (int j = 0; j < jobs.getSize(); ++j)
     {
@@ -821,12 +850,12 @@ void runJobMatching(const JobArray &jobs, const ResumeArray &resumes)
         // only jobs whose title matches the entered job position
         if (toLowerCopy(J.role).find(toLowerCopy(jobPosition)) == string::npos)
             continue;
-                // NEW: Require the job to contain ALL user-entered skills
-            if (qUserCount > 0)
-            {
+        // NEW: Require the job to contain ALL user-entered skills
+        if (qUserCount > 0)
+        {
             if (!containsAllSkillsTwoPointer(J.skills, J.skillCount, qUserSkills, qUserCount))
                 continue;
-            }
+        }
 
         const int denom = (J.skillCount > 0 ? J.skillCount : 1);
 
@@ -859,7 +888,8 @@ void runJobMatching(const JobArray &jobs, const ResumeArray &resumes)
                 overlap = countSkillMatchesTwoPointer(J.skills, J.skillCount, R.skills, R.skillCount);
             }
 
-            if (overlap <= 0) continue;
+            if (overlap <= 0)
+                continue;
 
             // --- NEW: ensure resume also matches at least one user-entered skill ---
             // NEW: Require the resume to contain ALL user-entered skills
@@ -872,7 +902,8 @@ void runJobMatching(const JobArray &jobs, const ResumeArray &resumes)
             // ---------------------------------------------------------------
 
             double pct = (100.0 * overlap) / denom;
-            if (pct < thresholdPct) continue;
+            if (pct < thresholdPct)
+                continue;
 
             if (matchCount < maxR)
             {
@@ -889,7 +920,7 @@ void runJobMatching(const JobArray &jobs, const ResumeArray &resumes)
             continue;
         }
 
-        // sort matches 
+        // sort matches
         for (int a = 0; a < matchCount - 1; ++a)
         {
             int best = a;
@@ -949,7 +980,8 @@ void runJobMatching(const JobArray &jobs, const ResumeArray &resumes)
                     {
                         if (qUserSkills[us] == R.skills[rk])
                         {
-                            if (!first) cout << ", ";
+                            if (!first)
+                                cout << ", ";
                             cout << qUserSkills[us];
                             first = false;
                             break;
@@ -973,7 +1005,8 @@ int promptSortAlgorithm()
          << "2. Insertion Sort\n"
          << "Choice (1-2): ";
     cin >> c;
-    if (c != 1 && c != 2) c = 1; // default merge sort
+    if (c != 1 && c != 2)
+        c = 1; // default merge sort
     return c;
 }
 
@@ -985,10 +1018,10 @@ int promptSearchAlgorithm()
          << "2. Two-Pointer Search\n"
          << "Choice (1-2): ";
     cin >> c;
-    if (c != 1 && c != 2) c = 2; // default two-pointer
+    if (c != 1 && c != 2)
+        c = 2; // default two-pointer
     return c;
 }
-
 
 // ----------- MAIN MENU ------------
 void mainMenu(JobArray &jobs, ResumeArray &resumes, JobArray &jobs_unsorted, ResumeArray &resumes_unsorted)
@@ -1004,7 +1037,7 @@ void mainMenu(JobArray &jobs, ResumeArray &resumes, JobArray &jobs_unsorted, Res
              << "5. Search Resumes (Sorted)\n"
              << "6. Search Resumes (Not Sorted)\n"
              << "7. Job Matching\n"
-             << "8. Exit\n"
+             << "8. Return\n"
              << "Choice (1-8): ";
         cin >> choice;
 
@@ -1027,7 +1060,7 @@ void mainMenu(JobArray &jobs, ResumeArray &resumes, JobArray &jobs_unsorted, Res
             else
             {
                 // Simple insertion sort for demonstration
-                Job* arr = jobs.getArray();
+                Job *arr = jobs.getArray();
                 int n = jobs.getSize();
                 for (int i = 1; i < n; i++)
                 {
@@ -1081,7 +1114,7 @@ void mainMenu(JobArray &jobs, ResumeArray &resumes, JobArray &jobs_unsorted, Res
         }
 
         case 8:
-            cout << "Exiting program...\n";
+            cout << "Returning to data structures selection...\n";
             break;
 
         default:
@@ -1119,3 +1152,4 @@ int main()
     return 0;
 }
 
+// To COMPILE PROJECT: do { g++ Array.cpp linked_list/*.cpp -o Array -lpsapi }

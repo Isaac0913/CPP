@@ -12,14 +12,14 @@ extern const string JOB_DESC_FILENAME;
 extern const string RESUME_FILENAME;
 
 // this is the list of confirmed available skills (already in standardized format)
-extern const char *SKILLS[];
+extern const char *lSKILLS[];
 extern const int SKILL_COUNT;
 
 // returns a single cleaned raw data line by replacing with standardized format
-string normalizeText(string input);
+string lnormalizeText(string input);
 
 // extract skills from single cleaned raw data line
-void extractSkills(const string &clean_line, string skillArray[], int &skillCount);
+void lextractSkills(const string &clean_line, string skillArray[], int &skillCount);
 
 // formerly loadJobDescription/loadResumes (partially)
 // now takes in a callback/lambda function to process each line depending on job or resume

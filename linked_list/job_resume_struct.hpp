@@ -5,7 +5,7 @@
 using namespace std;
 
 // we use the same Job and Resume objects/structs for both array and linked list
-struct Job
+struct lJob
 {
     int id;
     string role;
@@ -14,7 +14,7 @@ struct Job
     string raw_text;
 };
 
-struct Resume
+struct lResume
 {
     int id;
     string skills[50];

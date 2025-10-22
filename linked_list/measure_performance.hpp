@@ -11,7 +11,7 @@ struct PerformanceResult
     size_t memory_kb; // memory difference before and after executing the process
 };
 
-size_t getMemoryUsageKB();
+size_t lgetMemoryUsageKB();
 
 // returns the result struct that contains the time and memory result
 PerformanceResult measurePerformance(const function<void()> &taskToMeasure);

@@ -9,10 +9,10 @@ JobLinkedList sortInsertionJob(const JobLinkedList &jobLinkedList)
 
     while (current != nullptr)
     {
-        const Job &job = current->data;
+        const lJob &job = current->data;
         JobNodeSingly *newNode = new JobNodeSingly(job);
         if (sortedList.getHead() == nullptr ||
-            toLowerCopy(job.role) < toLowerCopy(sortedList.getHead()->data.role))
+            ltoLowerCopy(job.role) < ltoLowerCopy(sortedList.getHead()->data.role))
         {
             newNode->next = sortedList.getHead();
             sortedList.setHead(newNode);
@@ -23,7 +23,7 @@ JobLinkedList sortInsertionJob(const JobLinkedList &jobLinkedList)
         {
             JobNodeSingly *search = sortedList.getHead();
             while (search->next != nullptr &&
-                   toLowerCopy(search->next->data.role) < toLowerCopy(job.role))
+                   ltoLowerCopy(search->next->data.role) < ltoLowerCopy(job.role))
             {
                 search = search->next;
             }

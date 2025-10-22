@@ -29,10 +29,22 @@ struct SearchQueryData
     int roleCount;
 };
 
-int promptSortAlgorithm();
+struct MatchQueryData
+{
+    string jobRole;
+    string skills[50];
+    int skillCount;
+    double thresholdPct;
+};
 
-int promptSearchAlgorithm();
+int lpromptSortAlgorithm();
+
+int lpromptSearchAlgorithm();
+
+SearchQueryData promptSearchQuery(bool clearBuffer);
 
 SearchQueryData parseSearchQuery(const string &userQuery);
+
+MatchQueryData promptMatchQuery(bool clearBuffer, SearchMode searchAlgo);
 
 #endif

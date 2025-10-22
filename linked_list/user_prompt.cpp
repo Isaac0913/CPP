@@ -4,7 +4,7 @@
 #include <iostream>
 #include <limits>
 
-int promptSortAlgorithm()
+int lpromptSortAlgorithm()
 {
     int c;
     cout << "Choose sorting algorithm:\n"
@@ -18,7 +18,7 @@ int promptSortAlgorithm()
 }
 
 // this can be used to set the SearchMode enum value
-int promptSearchAlgorithm()
+int lpromptSearchAlgorithm()
 {
     int c;
     cout << "Choose search algorithm:\n"
@@ -32,9 +32,12 @@ int promptSearchAlgorithm()
 }
 
 // use this when prompting for search query
-SearchQueryData promptSearchQuery()
+SearchQueryData promptSearchQuery(bool clearBuffer)
 {
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    if (clearBuffer)
+    {
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
     cout << "Enter search text (skills/keywords): ";
     string query;
     getline(cin, query);
@@ -45,15 +48,58 @@ SearchQueryData promptSearchQuery()
 SearchQueryData parseSearchQuery(const string &userQuery)
 {
     SearchQueryData queryData{};
-    string clean = normalizeText(userQuery);
+    string clean = lnormalizeText(userQuery);
 
-    extractSkills(clean, queryData.skills, queryData.skillCount);
-    string roleOnly = removeSkillsFromQuery(clean);
-    queryData.roleCount = tokenizeWords(roleOnly, queryData.roles, 50);
+    lextractSkills(clean, queryData.skills, queryData.skillCount);
+    string roleOnly = lremoveSkillsFromQuery(clean);
+    queryData.roleCount = ltokenizeWords(roleOnly, queryData.roles, 50);
     for (int i = 0; i < queryData.roleCount; ++i)
     {
-        queryData.roles[i] = toLowerCopy(queryData.roles[i]);
+        queryData.roles[i] = ltoLowerCopy(queryData.roles[i]);
     }
+
+    return queryData;
+}
+
+// struct MatchQueryData
+// {
+//     string jobRole;
+//     string skills[50];
+//     int skillCount;
+//     double thresholdPct;
+// };
+
+MatchQueryData promptMatchQuery(bool clearBuffer, SearchMode searchAlgo)
+{
+    if (clearBuffer)
+    {
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
+
+    MatchQueryData queryData{};
+
+    cout << "Job position entered: ";
+    string jobPosition;
+    getline(cin, jobPosition);
+    queryData.jobRole = jobPosition;
+
+    cout << "Skills entered: ";
+    string userQuerySkills;
+    getline(cin, userQuerySkills);
+    string clean = lnormalizeText(userQuerySkills);
+    lextractSkills(clean, queryData.skills, queryData.skillCount);
+
+    double thresholdPct = 0.0;
+    cout << "Enter threshold % (0 - 100): ";
+    cin >> thresholdPct;
+    queryData.thresholdPct = thresholdPct;
+
+    cout << "\n===== Job Matching ("
+         << (searchAlgo == MODE_LINEAR ? "Linear" : "Two-pointer")
+         << ") =====\n";
+    cout << "Job position entered: " << jobPosition << "\n";
+    cout << "Skills entered: " << userQuerySkills << "\n";
+    cout << "Threshold: " << thresholdPct << "%\n\n";
 
     return queryData;
 }

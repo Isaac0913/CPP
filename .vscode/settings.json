@@ -2,6 +2,7 @@
     "files.associations": {
         "*.ejs": "html",
         "*.css": "tailwindcss",
-        "chrono": "cpp"
+        "chrono": "cpp",
+        "iostream": "cpp"
     }
 }

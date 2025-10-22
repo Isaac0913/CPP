@@ -28,17 +28,26 @@ Linked list insertion sort:
 1. linked_list_insertion_sort.hpp
 2. linked_list_insertion_sort.cpp
 
-Functions to get user input:
+Linked list merge sort: (in-progress)
+
+Linked list all search (search jobs, search resumes, internal selection sorting, linear & two-pointer skill match counting):
+1. linked_list_search.hpp
+2. linked_list_search.cpp
+
+Linked list job matching:
+1. linked_list_job_matching.hpp
+2. linked_list_job_matching.cpp
+
+To count matches/skill overlaps (linear & two-pointer, rolecount):
+1. count_matches.hpp
+2. count_matches.cpp
+
+To get user input:
 1. user_promt.cpp
 2. user_promt.hpp
 
-Structs to store scores:
+The score structs (for search and match);
 1. score_struct.hpp
-
-All search operations (search jobs, search resumes, internal sorting):
-1. linked_list_search.hpp
-2. linked_list_search.cpp
-NOTE: i havent buat the linear and the search resumes
 
 Some util operations for strings:
 1. string_utils.hpp

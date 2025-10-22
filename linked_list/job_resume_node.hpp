@@ -8,17 +8,17 @@ using namespace std;
 // later can refactor/rename to just JobNode if we only do either singly or doubly
 struct JobNodeSingly
 {
-    Job data;
+    lJob data;
     JobNodeSingly *next;
-    JobNodeSingly(const Job &jobData, JobNodeSingly *n = nullptr) : data(jobData), next(n) {}
+    JobNodeSingly(const lJob &jobData, JobNodeSingly *n = nullptr) : data(jobData), next(n) {}
 };
 
 // later can refactor/rename to just ResumeNode if we only do either singly or doubly
 struct ResumeNodeSingly
 {
-    Resume data;
+    lResume data;
     ResumeNodeSingly *next;
-    ResumeNodeSingly(const Resume &resumeData, ResumeNodeSingly *n = nullptr) : data(resumeData), next(n) {}
+    ResumeNodeSingly(const lResume &resumeData, ResumeNodeSingly *n = nullptr) : data(resumeData), next(n) {}
 };
 
 // Doubly, do we really need?
@@ -26,14 +26,14 @@ struct ResumeNodeSingly
 // putting these here just in case but they are unused
 struct JobNodeDoubly
 {
-    Job data;
+    lJob data;
     JobNodeDoubly *next;
     JobNodeDoubly *prev;
 };
 
 struct ResumeNodeDoubly
 {
-    Resume data;
+    lResume data;
     ResumeNodeDoubly *next;
     ResumeNodeDoubly *prev;
 };

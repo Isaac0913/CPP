@@ -5,16 +5,16 @@
 using namespace std;
 
 // to create copy of the string + converted to lowercase
-string toLowerCopy(const string &s);
+string ltoLowerCopy(const string &s);
 
 // formerly sortSkills
 // to sort an array of strings by alphabet order A ~ Z
-void sortStringArr(string arr[], int n);
+void lsortStringArr(string arr[], int n);
 
 string cleanQuotes(const string &s);
 
-int tokenizeWords(const string &s, string outTokens[], int maxTokens);
+int ltokenizeWords(const string &s, string outTokens[], int maxTokens);
 
-string removeSkillsFromQuery(const string &normQuery);
+string lremoveSkillsFromQuery(const string &normQuery);
 
 #endif
