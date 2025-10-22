@@ -4,7 +4,11 @@
         "*.css": "tailwindcss",
         "chrono": "cpp",
         "iostream": "cpp",
+<<<<<<< HEAD
         "format": "cpp",
         "sstream": "cpp"
+=======
+        "fstream": "cpp"
+>>>>>>> ecee81323d576f4a7193434462efc88ded66fa53
     }
 }
