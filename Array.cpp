@@ -37,16 +37,16 @@ bool containsAllSkillsTwoPointer(const string a[], int na, const string b[], int
     return (j == nb); // true only if all skills in b were found in a
 }
 
-size_t getMemoryUsageKB()
+size_t getProcessMemoryBytes()
 {
-    PROCESS_MEMORY_COUNTERS memCounter;
-    if (GetProcessMemoryInfo(GetCurrentProcess(), &memCounter, sizeof(memCounter)))
+    PROCESS_MEMORY_COUNTERS_EX pmc;
+    if (GetProcessMemoryInfo(GetCurrentProcess(), reinterpret_cast<PROCESS_MEMORY_COUNTERS*>(&pmc), sizeof(pmc)))
     {
-        return memCounter.WorkingSetSize / 1024; // Convert bytes to KB
+        // pmc.PrivateUsage is often a better representation of private memory usage
+        return static_cast<size_t>(pmc.WorkingSetSize); // or pmc.PrivateUsage
     }
     return 0;
 }
-
 enum SearchMode
 {
     MODE_LINEAR = 1,
@@ -655,11 +655,16 @@ void promptAndSearchJobs(const JobArray &jobs, bool sortedView)
     cout << "Enter search text (skills/keywords): ";
     string query;
     getline(cin, query);
-
+    size_t before = getProcessMemoryBytes();
     auto start = chrono::high_resolution_clock::now();
     searchJobsTwoPointer(jobs, query, sortedView);
     auto end = chrono::high_resolution_clock::now();
+    size_t after = getProcessMemoryBytes();
 
+    long long diff = static_cast<long long>(after) - static_cast<long long>(before);
+    if (diff < 0) diff = 0;
+    cout << "Before: " << before << " bytes, After: " << after << " bytes\n";
+    cout << "Memory usage: " << diff << " bytes (" << (diff/1024.0) << " KB)\n";
     cout << "Search completed in " << chrono::duration<double>(end - start).count() << " seconds.\n";
 }
 
@@ -768,11 +773,15 @@ void promptAndSearchResumes(const ResumeArray &resumes, bool sortedView)
     cout << "Enter search text (skills/keywords): ";
     string query;
     getline(cin, query);
-
+    size_t before = getProcessMemoryBytes();
     auto start = chrono::high_resolution_clock::now();
     searchResumesTwoPointer(resumes, query, sortedView);
     auto end = chrono::high_resolution_clock::now();
-
+    size_t after = getProcessMemoryBytes();
+    long long diff = static_cast<long long>(after) - static_cast<long long>(before);
+    if (diff < 0) diff = 0;
+    cout << "Before: " << before << " bytes, After: " << after << " bytes\n";
+    cout << "Memory usage: " << diff << " bytes (" << (diff/1024.0) << " KB)\n";
     cout << "Search completed in " << chrono::duration<double>(end - start).count() << " seconds.\n";
 }
 
@@ -808,6 +817,9 @@ int overlapSkillCount(const Job &J, const Resume &R)
 
 void runJobMatching(const JobArray &jobs, const ResumeArray &resumes)
 {
+    size_t memBefore = getProcessMemoryBytes();
+    auto start = chrono::high_resolution_clock::now();
+
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
     cout << "Job position entered: ";
@@ -842,7 +854,7 @@ void runJobMatching(const JobArray &jobs, const ResumeArray &resumes)
         int overlap;
         double pct;
     };
-
+    int totalMatchCount = 0;
     for (int j = 0; j < jobs.getSize(); ++j)
     {
         const Job &J = jobs.getArray()[j];
@@ -993,8 +1005,20 @@ void runJobMatching(const JobArray &jobs, const ResumeArray &resumes)
         }
         cout << "\n";
 
+        totalMatchCount += matchCount;
+
         delete[] matches;
     }
+    auto end = chrono::high_resolution_clock::now();
+    size_t memAfter = getProcessMemoryBytes();
+
+    long long diff = static_cast<long long>(memAfter) - static_cast<long long>(memBefore);
+    if (diff < 0) diff = 0;
+
+    chrono::duration<double> duration = end - start;
+    cout << "\nExecution time: " << duration.count() << " seconds.\n";
+    cout << "Memory usage: " << diff << " bytes (" << diff / 1024.0 << " KB)\n";
+    cout << "Total matched resumes across all jobs: " << totalMatchCount << "\n";
 }
 
 int promptSortAlgorithm()
@@ -1050,11 +1074,21 @@ void mainMenu(JobArray &jobs, ResumeArray &resumes, JobArray &jobs_unsorted, Res
         case 2:
         {
             int algo = promptSortAlgorithm();
-            size_t memBefore = getMemoryUsageKB();
-            auto start = chrono::high_resolution_clock::now();
+            
             if (algo == 1)
             {
+                size_t memBefore = getProcessMemoryBytes();
+                auto start = chrono::high_resolution_clock::now();
                 mergeSortJobs(jobs.getArray(), 0, jobs.getSize() - 1);
+                auto end = chrono::high_resolution_clock::now();
+                size_t memAfter = getProcessMemoryBytes();
+
+                long long diff = static_cast<long long>(memAfter) - static_cast<long long>(memBefore);
+                if (diff < 0) diff = 0;
+
+                chrono::duration<double> duration = end - start;
+                cout << "\nExecution time: " << duration.count() << " seconds.\n";
+                cout << "Memory usage: " << diff << " bytes (" << diff / 1024.0 << " KB)\n";
                 cout << "Jobs sorted using Merge Sort.\n";
             }
             else
@@ -1075,11 +1109,11 @@ void mainMenu(JobArray &jobs, ResumeArray &resumes, JobArray &jobs_unsorted, Res
                 }
                 cout << "Jobs sorted using Insertion Sort.\n";
             }
-            auto end = chrono::high_resolution_clock::now(); // End timer
-            size_t memAfter = getMemoryUsageKB();
-            chrono::duration<double> duration = end - start;
-            cout << "\nExecution time: " << duration.count() << " seconds.\n";
-            cout << "Memory usage: " << (memAfter - memBefore) << " KB.\n";
+            // auto end = chrono::high_resolution_clock::now(); // End timer
+            // size_t memAfter = getMemoryUsageKB();
+            // chrono::duration<double> duration = end - start;
+            // cout << "\nExecution time: " << duration.count() << " seconds.\n";
+            // cout << "Memory usage: " << (memAfter - memBefore) << " KB.\n";
             displayJobs(jobs);
             break;
         }
@@ -1092,8 +1126,8 @@ void mainMenu(JobArray &jobs, ResumeArray &resumes, JobArray &jobs_unsorted, Res
         {
             int algo = promptSearchAlgorithm();
             g_searchMode = (algo == 1 ? MODE_LINEAR : MODE_TWO_POINTER);
-            size_t memBefore = getMemoryUsageKB();
-            auto start = chrono::high_resolution_clock::now();
+            // size_t memBefore = getMemoryUsageKB();
+            // auto start = chrono::high_resolution_clock::now();
 
             if (choice == 3)
                 promptAndSearchJobs(jobs, true);
@@ -1105,11 +1139,11 @@ void mainMenu(JobArray &jobs, ResumeArray &resumes, JobArray &jobs_unsorted, Res
                 promptAndSearchResumes(resumes_unsorted, false);
             else if (choice == 7)
                 runJobMatching(jobs, resumes);
-            auto end = chrono::high_resolution_clock::now();
-            size_t memAfter = getMemoryUsageKB();
-            chrono::duration<double> duration = end - start;
-            cout << "\nExecution time: " << duration.count() << " seconds.\n";
-            cout << "Memory usage: " << (memAfter - memBefore) << " KB.\n";
+            // auto end = chrono::high_resolution_clock::now();
+            // size_t memAfter = getMemoryUsageKB();
+            // chrono::duration<double> duration = end - start;
+            // cout << "\nExecution time: " << duration.count() << " seconds.\n";
+            // cout << "Memory usage: " << (memAfter - memBefore) << " KB.\n";
             break;
         }
 
