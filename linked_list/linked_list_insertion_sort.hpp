@@ -7,4 +7,6 @@ using namespace std;
 
 JobLinkedList sortInsertionJob(const JobLinkedList &jobLinkedList);
 
+ResumeLinkedList sortInsertionResume(const ResumeLinkedList& resumeLinkedList);
+
 #endif

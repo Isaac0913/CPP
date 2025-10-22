@@ -5,6 +5,7 @@
 #include "string_utils.hpp"
 #include "linked_list_insertion_sort.hpp"
 #include "count_matches.hpp"
+#include "linked_list_merge_sort.hpp"
 #include <iostream>
 
 // GO LOOK INTO user_prompt.hpp for the search mode and type enums
@@ -17,7 +18,8 @@
 // use PerformanceResult wrapper to measure performance if needed
 void searchJobs(SearchMode searchMode, bool sortedView, SearchQueryData &userQuery, JobLinkedList &jobs)
 {
-    JobLinkedList *jobsView;
+    JobLinkedList* jobsView = nullptr;
+
     if (!sortedView)
     {
         jobsView = const_cast<JobLinkedList *>(&jobs);
@@ -25,14 +27,27 @@ void searchJobs(SearchMode searchMode, bool sortedView, SearchQueryData &userQue
     }
     else
     {
-        // jobsView = new JobLinkedList(jobs);
-        // mergeSortJobs(*jobsView, 0, n - 1);4
-        jobsView = new JobLinkedList(sortInsertionJob(jobs));
-        cout << "------sorted----\nsorted location (location is the ID)\n";
+        // MENU should decide which algorithm to use and set algoChoice accordingly.
+        // For example, algoChoice == 1 -> merge, 2 -> insertion.
+        int algoChoice = lpromptSortAlgorithm(); // or get from caller
+        if (algoChoice == 1)
+        {
+            // merge sort copy (returns JobLinkedList by value)
+            JobLinkedList sorted = mergeSortJobCopy(jobs);
+            jobsView = new JobLinkedList(sorted); // heap copy for uniform ownership
+            cout << "------sorted (Merge Sort)----\n";
+        }
+        else
+        {
+            JobLinkedList sorted = sortInsertionJob(jobs);
+            jobsView = new JobLinkedList(sorted);
+            cout << "------sorted (Insertion Sort)----\n";
+        }
     }
 
     int maxSize = jobs.getSize();
-    lScoreRow *scoreRows = new lScoreRow[maxSize];
+    /*ScoreRow* scoreRows = new ScoreRow[maxSize];*/
+    lScoreRow* scoreRows = new lScoreRow[maxSize];
     int r = 0;
 
     JobNodeSingly *current = jobsView->getHead();
@@ -103,13 +118,27 @@ void searchResumes(SearchMode searchMode, bool sortedView, SearchQueryData &user
     }
     else
     {
-        resumesView = new ResumeLinkedList(resume);
-        // mergeSortResumes(*resumesView, 0, n - 1);
-        cout << "------sorted----\nsorted location (location is the ID)\n";
+        
+        // CHANGED: Added prompt for algorithm (like in searchJobs)
+        int algoChoice = lpromptSortAlgorithm(); // 1 = Merge, 2 = Insertion
+
+        if (algoChoice == 1)
+        {
+            ResumeLinkedList sorted = mergeSortResumeCopy(resume);
+            resumesView = new ResumeLinkedList(sorted);
+            cout << "------sorted (Merge Sort)----\n";
+        }
+        else
+        {
+            ResumeLinkedList sorted = sortInsertionResume(resume);
+            resumesView = new ResumeLinkedList(sorted);
+            cout << "------sorted (Insertion Sort)----\n";
+        }
     }
 
     int maxSize = resume.getSize();
-    lScoreRow scoreRows[maxSize];
+    lScoreRow* scoreRows = new lScoreRow[maxSize];
+    /*lScoreRow scoreRows[maxSize];*/
     int r = 0;
 
     ResumeNodeSingly *current = resumesView->getHead();
@@ -149,6 +178,8 @@ void searchResumes(SearchMode searchMode, bool sortedView, SearchQueryData &user
         {
             delete resumesView;
         }
+        
+        delete[] scoreRows;
         return;
     }
 
@@ -159,11 +190,14 @@ void searchResumes(SearchMode searchMode, bool sortedView, SearchQueryData &user
     {
         lprintResumeLine(scoreRows[i].resumeNode->data);
     }
-
     if (sortedView)
     {
         delete resumesView;
     }
+    delete[] scoreRows;
+    
+
+
 }
 
 // placed it here because it's inherently a part of search

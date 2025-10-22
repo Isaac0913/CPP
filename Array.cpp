@@ -1,3 +1,4 @@
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -825,6 +826,8 @@ void displayJobs(JobArray &jobs, int count = 10)
     }
 }
 
+
+
 // ----------- JOB MATCHING ------------
 int overlapSkillCount(const Job &J, const Resume &R)
 {
@@ -1038,9 +1041,13 @@ int promptSearchAlgorithm()
     if (c != 1 && c != 2) c = 2;
     return c;
 }
-
-// ----------- MAIN MENU ------------
-void mainMenu(JobArray &jobs, ResumeArray &resumes, JobArray &jobs_unsorted, ResumeArray &resumes_unsorted)
+void cloneJobs(JobArray& dst, const JobArray& src) {
+    for (int i = 0; i < src.getSize(); ++i) dst.insert(src.getArray()[i]);
+}
+void cloneResumes(ResumeArray& dst, const ResumeArray& src) {
+    for (int i = 0; i < src.getSize(); ++i) dst.insert(src.getArray()[i]);
+}
+void mainMenu(JobArray& jobs, ResumeArray& resumes, JobArray& jobs_unsorted, ResumeArray& resumes_unsorted)
 {
     int choice;
     do
@@ -1204,17 +1211,11 @@ void mainMenu(JobArray &jobs, ResumeArray &resumes, JobArray &jobs_unsorted, Res
     } while (choice != 10);
 }
 
+// ----------- MAIN MENU ------------
 
-void cloneJobs(JobArray &dst, const JobArray &src) {
-    for (int i = 0; i < src.getSize(); ++i) dst.insert(src.getArray()[i]);
-}
-void cloneResumes(ResumeArray &dst, const ResumeArray &src) {
-    for (int i = 0; i < src.getSize(); ++i) dst.insert(src.getArray()[i]);
-}
-
-// ----------- MAIN ------------
-int main()
+void arrayMainMenuEntry()
 {
+    // --- ARRAY DATA STRUCTURE SELECTED ---
     JobArray jobs(12000);
     JobArray jobs_unsorted(12000);
     ResumeArray resumes(12000);
@@ -1230,8 +1231,60 @@ int main()
     cloneResumes(resumes_unsorted, resumes);
     cout << "Loaded " << resumes.getSize() << " resumes.\n";
 
+    // Now enter the array main menu
     mainMenu(jobs, resumes, jobs_unsorted, resumes_unsorted);
+}
+
+
+
+
+
+
+
+
+
+// ----------- MAIN ------------
+int main()
+{
+    int dsChoice;
+    do
+    {
+        cout << "\n===== SELECT DATA STRUCTURE =====\n"
+            << "1. Array\n"
+            << "2. Linked List\n"
+            << "0. Exit\n"
+            << "Choice (0-2): ";
+        cin >> dsChoice;
+
+        switch (dsChoice)
+        {
+        case 1:
+        {
+            arrayMainMenuEntry();
+            break;
+        }
+
+        case 2:
+        {
+            // --- LINKED LIST DATA STRUCTURE SELECTED ---
+            linkedListMainMenu();
+            break;
+        }
+
+        case 0:
+            cout << "Exiting program...\n";
+            break;
+
+        default:
+            cout << "Invalid choice. Please try again.\n";
+        }
+
+    } while (dsChoice != 0);
+
     return 0;
 }
+
+
+  
 
 // To COMPILE PROJECT: do { g++ Array.cpp linked_list/*.cpp -o Array -lpsapi }
