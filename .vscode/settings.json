@@ -3,12 +3,13 @@
         "*.ejs": "html",
         "*.css": "tailwindcss",
         "chrono": "cpp",
+        "string": "cpp",
+        "functional": "cpp",
+        "unordered_map": "cpp",
         "iostream": "cpp",
-<<<<<<< HEAD
-        "format": "cpp",
-        "sstream": "cpp"
-=======
-        "fstream": "cpp"
->>>>>>> ecee81323d576f4a7193434462efc88ded66fa53
+        "new": "cpp",
+        "limits": "cpp",
+        "ostream": "cpp",
+        "algorithm": "cpp"
     }
 }
