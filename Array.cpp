@@ -991,7 +991,7 @@ int promptSearchAlgorithm()
 
 
 // ----------- MAIN MENU ------------
-void mainMenu(JobArray &jobs, ResumeArray &resumes)
+void mainMenu(JobArray &jobs, ResumeArray &resumes, JobArray &jobs_unsorted, ResumeArray &resumes_unsorted)
 {
     int choice;
     do
@@ -1065,11 +1065,11 @@ void mainMenu(JobArray &jobs, ResumeArray &resumes)
             if (choice == 3)
                 promptAndSearchJobs(jobs, true);
             else if (choice == 4)
-                promptAndSearchJobs(jobs, false);
+                promptAndSearchJobs(jobs_unsorted, false);
             else if (choice == 5)
                 promptAndSearchResumes(resumes, true);
             else if (choice == 6)
-                promptAndSearchResumes(resumes, false);
+                promptAndSearchResumes(resumes_unsorted, false);
             else if (choice == 7)
                 runJobMatching(jobs, resumes);
             auto end = chrono::high_resolution_clock::now();
@@ -1090,23 +1090,32 @@ void mainMenu(JobArray &jobs, ResumeArray &resumes)
     } while (choice != 8);
 }
 
-
+void cloneJobs(JobArray &dst, const JobArray &src) {
+    for (int i = 0; i < src.getSize(); ++i) dst.insert(src.getArray()[i]);
+}
+void cloneResumes(ResumeArray &dst, const ResumeArray &src) {
+    for (int i = 0; i < src.getSize(); ++i) dst.insert(src.getArray()[i]);
+}
 
 // ----------- MAIN ------------
 int main()
 {
     JobArray jobs(12000);
+    JobArray jobs_unsorted(12000);
     ResumeArray resumes(12000);
+    ResumeArray resumes_unsorted(12000);
 
     cout << "Loading jobs...\n";
     loadJobDescriptions(jobs, "job_description.csv");
+    cloneJobs(jobs_unsorted, jobs);
     cout << "Loaded " << jobs.getSize() << " job descriptions.\n";
 
     cout << "Loading resumes...\n";
     loadResumes(resumes, "resume.csv");
+    cloneResumes(resumes_unsorted, resumes);
     cout << "Loaded " << resumes.getSize() << " resumes.\n";
 
-    mainMenu(jobs, resumes);
+    mainMenu(jobs, resumes, jobs_unsorted, resumes_unsorted);
     return 0;
 }
 
