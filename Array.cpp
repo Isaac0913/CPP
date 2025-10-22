@@ -34,7 +34,7 @@ bool containsAllSkillsTwoPointer(const string a[], int na, const string b[], int
             return false;
         }
     }
-    return (j == nb); // true only if all skills in b were found in a
+    return (j == nb);
 }
 
 size_t getMemoryUsageKB()
@@ -42,7 +42,7 @@ size_t getMemoryUsageKB()
     PROCESS_MEMORY_COUNTERS memCounter;
     if (GetProcessMemoryInfo(GetCurrentProcess(), &memCounter, sizeof(memCounter)))
     {
-        return memCounter.WorkingSetSize / 1024; // Convert bytes to KB
+        return memCounter.WorkingSetSize / 1024;
     }
     return 0;
 }
@@ -234,7 +234,6 @@ void extractSkills(const string &clean_line, string skillArray[], int &skillCoun
     sortSkills(skillArray, skillCount);
 }
 
-// ----------- Loaders ------------
 void loadJobDescriptions(JobArray &jobs, const string &filename)
 {
     ifstream file(filename);
@@ -256,6 +255,7 @@ void loadJobDescriptions(JobArray &jobs, const string &filename)
         }
         if (line.empty())
             continue;
+
         Job j;
         j.id = id++;
         j.raw_text = line;
@@ -390,6 +390,37 @@ void mergeSortResumes(Resume arr[], int left, int right)
     mergeResumes(arr, left, mid, right);
 }
 
+// ===== NEW: Insertion sorts for Jobs and Resumes (used when user chooses it) =====
+void insertionSortJobs(Job arr[], int n)
+{
+    for (int i = 1; i < n; ++i)
+    {
+        Job key = arr[i];
+        int j = i - 1;
+        while (j >= 0 && toLowerCopy(arr[j].role) > toLowerCopy(key.role))
+        {
+            arr[j + 1] = arr[j];
+            --j;
+        }
+        arr[j + 1] = key;
+    }
+}
+
+void insertionSortResumes(Resume arr[], int n)
+{
+    for (int i = 1; i < n; ++i)
+    {
+        Resume key = arr[i];
+        int j = i - 1;
+        while (j >= 0 && resumeSortKey(arr[j]) > resumeSortKey(key))
+        {
+            arr[j + 1] = arr[j];
+            --j;
+        }
+        arr[j + 1] = key;
+    }
+}
+
 // ----------- Random + Token helpers ------------
 void seedRandOnce()
 {
@@ -488,7 +519,7 @@ int countSkillMatchesLinear(const string a[], int na, const string b[], int nb)
             if (a[i] == b[j])
             {
                 ++hits;
-                break; // avoid double-counting this a[i]
+                break;
             }
         }
     }
@@ -575,7 +606,7 @@ void searchJobsTwoPointer(const JobArray &jobs, const string &userQuery, bool us
     if (!useSortedView)
     {
         view = const_cast<Job *>(jobs.getArray());
-        cout << "------unsorted---\nunsorted location (location is the ID)\n";
+        cout << "------searching current order---\n";
     }
     else
     {
@@ -583,37 +614,27 @@ void searchJobsTwoPointer(const JobArray &jobs, const string &userQuery, bool us
         for (int i = 0; i < n; ++i)
             view[i] = jobs.getArray()[i];
         mergeSortJobs(view, 0, n - 1);
-        cout << "------sorted----\nsorted location (location is the ID)\n";
+        cout << "------sorted (view copy)----\n";
     }
 
-    struct ScoreRow
-    {
-        int idx;
-        int skillHits;
-        int roleHits;
-    };
-
+    struct ScoreRow { int idx; int skillHits; int roleHits; };
     ScoreRow rows[20000];
     int r = 0;
 
     for (int i = 0; i < n; ++i)
     {
-        int sHits = 0;
-        if (g_searchMode == MODE_LINEAR)
-            sHits = countSkillMatchesLinear(view[i].skills, view[i].skillCount, qSkills, qCount);
-        else
-            sHits = countSkillMatchesTwoPointer(view[i].skills, view[i].skillCount, qSkills, qCount);
+        int sHits = (g_searchMode == MODE_LINEAR)
+                  ? countSkillMatchesLinear(view[i].skills, view[i].skillCount, qSkills, qCount)
+                  : countSkillMatchesTwoPointer(view[i].skills, view[i].skillCount, qSkills, qCount);
         int rHits = roleHitCount(toLowerCopy(view[i].role), qRoleTok, qRoleCount);
-        if (sHits == 0 && rHits == 0)
-            continue;
+        if (sHits == 0 && rHits == 0) continue;
         rows[r++] = {i, sHits, rHits};
     }
 
     if (r == 0)
     {
         cout << "(no matches)\n";
-        if (useSortedView)
-            delete[] view;
+        if (useSortedView) delete[] view;
         return;
     }
 
@@ -623,30 +644,20 @@ void searchJobsTwoPointer(const JobArray &jobs, const string &userQuery, bool us
         for (int j = i + 1; j < r; j++)
         {
             bool better = false;
-            if (rows[j].skillHits > rows[best].skillHits)
-                better = true;
+            if (rows[j].skillHits > rows[best].skillHits) better = true;
             else if (rows[j].skillHits == rows[best].skillHits)
             {
-                if (rows[j].roleHits > rows[best].roleHits)
-                    better = true;
+                if (rows[j].roleHits > rows[best].roleHits) better = true;
                 else if (rows[j].roleHits == rows[best].roleHits)
-                    if (view[rows[j].idx].id < view[rows[best].idx].id)
-                        better = true;
+                    if (view[rows[j].idx].id < view[rows[best].idx].id) better = true;
             }
-            if (better)
-            {
-                ScoreRow tmp = rows[j];
-                rows[j] = rows[best];
-                rows[best] = tmp;
-            }
+            if (better) { auto tmp = rows[j]; rows[j] = rows[best]; rows[best] = tmp; }
         }
     }
     int limit = (r < 10 ? r : 10);
-    for (int i = 0; i < limit; ++i)
-        printJobLine(view[rows[i].idx]);
+    for (int i = 0; i < limit; ++i) printJobLine(view[rows[i].idx]);
 
-    if (useSortedView)
-        delete[] view;
+    if (useSortedView) delete[] view;
 }
 
 void promptAndSearchJobs(const JobArray &jobs, bool sortedView)
@@ -688,7 +699,7 @@ void searchResumesTwoPointer(const ResumeArray &resumes, const string &userQuery
     if (!useSortedView)
     {
         view = const_cast<Resume *>(resumes.getArray());
-        cout << "------unsorted---\nunsorted location (location is the ID)\n";
+        cout << "------searching current order---\n";
     }
     else
     {
@@ -696,37 +707,28 @@ void searchResumesTwoPointer(const ResumeArray &resumes, const string &userQuery
         for (int i = 0; i < n; ++i)
             view[i] = resumes.getArray()[i];
         mergeSortResumes(view, 0, n - 1);
-        cout << "------sorted----\nsorted location (location is the ID)\n";
+        cout << "------sorted (view copy)----\n";
     }
 
-    struct ScoreRow
-    {
-        int idx;
-        int skillHits;
-        int roleHits;
-    };
+    struct ScoreRow { int idx; int skillHits; int roleHits; };
     ScoreRow rows[20000];
     int r = 0;
 
     for (int i = 0; i < n; ++i)
     {
-        int sHits = 0;
-        if (g_searchMode == MODE_LINEAR)
-            sHits = countSkillMatchesLinear(view[i].skills, view[i].skillCount, qSkills, qCount);
-        else
-            sHits = countSkillMatchesTwoPointer(view[i].skills, view[i].skillCount, qSkills, qCount);
+        int sHits = (g_searchMode == MODE_LINEAR)
+                  ? countSkillMatchesLinear(view[i].skills, view[i].skillCount, qSkills, qCount)
+                  : countSkillMatchesTwoPointer(view[i].skills, view[i].skillCount, qSkills, qCount);
 
         int rHits = roleHitCount(toLowerCopy(view[i].raw_text), qRoleTok, qRoleCount);
-        if (sHits == 0 && rHits == 0)
-            continue;
+        if (sHits == 0 && rHits == 0) continue;
         rows[r++] = {i, sHits, rHits};
     }
 
     if (r == 0)
     {
         cout << "(no matches)\n";
-        if (useSortedView)
-            delete[] view;
+        if (useSortedView) delete[] view;
         return;
     }
 
@@ -736,30 +738,20 @@ void searchResumesTwoPointer(const ResumeArray &resumes, const string &userQuery
         for (int j = i + 1; j < r; j++)
         {
             bool better = false;
-            if (rows[j].skillHits > rows[best].skillHits)
-                better = true;
+            if (rows[j].skillHits > rows[best].skillHits) better = true;
             else if (rows[j].skillHits == rows[best].skillHits)
             {
-                if (rows[j].roleHits > rows[best].roleHits)
-                    better = true;
+                if (rows[j].roleHits > rows[best].roleHits) better = true;
                 else if (rows[j].roleHits == rows[best].roleHits)
-                    if (view[rows[j].idx].id < view[rows[best].idx].id)
-                        better = true;
+                    if (view[rows[j].idx].id < view[rows[best].idx].id) better = true;
             }
-            if (better)
-            {
-                ScoreRow tmp = rows[j];
-                rows[j] = rows[best];
-                rows[best] = tmp;
-            }
+            if (better) { auto tmp = rows[j]; rows[j] = rows[best]; rows[best] = tmp; }
         }
     }
     int limit = (r < 10 ? r : 10);
-    for (int i = 0; i < limit; ++i)
-        printResumeLine(view[rows[i].idx]);
+    for (int i = 0; i < limit; ++i) printResumeLine(view[rows[i].idx]);
 
-    if (useSortedView)
-        delete[] view;
+    if (useSortedView) delete[] view;
 }
 
 void promptAndSearchResumes(const ResumeArray &resumes, bool sortedView)
@@ -822,12 +814,10 @@ void runJobMatching(const JobArray &jobs, const ResumeArray &resumes)
     cout << "Enter threshold % (0 - 100): ";
     cin >> thresholdPct;
 
-    // --- NEW: prepare user-entered skills for matching ---
     string cleanUserSkills = normalizeText(skills);
     string qUserSkills[50];
     int qUserCount = 0;
     extractSkills(cleanUserSkills, qUserSkills, qUserCount);
-    // -----------------------------------------------------
 
     cout << "\n===== Job Matching ("
          << (g_searchMode == MODE_LINEAR ? "Linear" : "Two-pointer")
@@ -836,21 +826,14 @@ void runJobMatching(const JobArray &jobs, const ResumeArray &resumes)
     cout << "Skills entered: " << skills << "\n";
     cout << "Threshold: " << thresholdPct << "%\n\n";
 
-    struct ScoredRes
-    {
-        int rIdx;
-        int overlap;
-        double pct;
-    };
+    struct ScoredRes { int rIdx; int overlap; double pct; };
 
     for (int j = 0; j < jobs.getSize(); ++j)
     {
         const Job &J = jobs.getArray()[j];
 
-        // only jobs whose title matches the entered job position
         if (toLowerCopy(J.role).find(toLowerCopy(jobPosition)) == string::npos)
             continue;
-        // NEW: Require the job to contain ALL user-entered skills
         if (qUserCount > 0)
         {
             if (!containsAllSkillsTwoPointer(J.skills, J.skillCount, qUserSkills, qUserCount))
@@ -859,7 +842,6 @@ void runJobMatching(const JobArray &jobs, const ResumeArray &resumes)
 
         const int denom = (J.skillCount > 0 ? J.skillCount : 1);
 
-        // collect matches for this job
         int maxR = resumes.getSize();
         ScoredRes *matches = new ScoredRes[maxR];
         int matchCount = 0;
@@ -891,19 +873,14 @@ void runJobMatching(const JobArray &jobs, const ResumeArray &resumes)
             if (overlap <= 0)
                 continue;
 
-            // --- NEW: ensure resume also matches at least one user-entered skill ---
-            // NEW: Require the resume to contain ALL user-entered skills
             if (qUserCount > 0)
             {
                 if (!containsAllSkillsTwoPointer(R.skills, R.skillCount, qUserSkills, qUserCount))
                     continue;
             }
 
-            // ---------------------------------------------------------------
-
             double pct = (100.0 * overlap) / denom;
-            if (pct < thresholdPct)
-                continue;
+            if (pct < thresholdPct) continue;
 
             if (matchCount < maxR)
             {
@@ -920,38 +897,27 @@ void runJobMatching(const JobArray &jobs, const ResumeArray &resumes)
             continue;
         }
 
-        // sort matches
         for (int a = 0; a < matchCount - 1; ++a)
         {
             int best = a;
             for (int b = a + 1; b < matchCount; ++b)
             {
                 bool better = false;
-                if (matches[b].pct > matches[best].pct)
-                    better = true;
+                if (matches[b].pct > matches[best].pct) better = true;
                 else if (matches[b].pct == matches[best].pct)
                 {
-                    if (matches[b].overlap > matches[best].overlap)
-                        better = true;
+                    if (matches[b].overlap > matches[best].overlap) better = true;
                     else if (matches[b].overlap == matches[best].overlap)
                     {
                         const Resume &RB = resumes.getArray()[matches[b].rIdx];
                         const Resume &RA = resumes.getArray()[matches[best].rIdx];
-                        if (RB.id < RA.id)
-                            better = true;
+                        if (RB.id < RA.id) better = true;
                     }
                 }
-
-                if (better)
-                {
-                    ScoredRes tmp = matches[b];
-                    matches[b] = matches[best];
-                    matches[best] = tmp;
-                }
+                if (better) { auto tmp = matches[b]; matches[b] = matches[best]; matches[best] = tmp; }
             }
         }
 
-        // print job and top 10 matching resumes
         cout << "Job ID " << J.id << "\n";
         cout << "Job role " << J.role << "\n";
         cout << "Skills: [";
@@ -980,8 +946,7 @@ void runJobMatching(const JobArray &jobs, const ResumeArray &resumes)
                     {
                         if (qUserSkills[us] == R.skills[rk])
                         {
-                            if (!first)
-                                cout << ", ";
+                            if (!first) cout << ", ";
                             cout << qUserSkills[us];
                             first = false;
                             break;
@@ -1005,8 +970,7 @@ int promptSortAlgorithm()
          << "2. Insertion Sort\n"
          << "Choice (1-2): ";
     cin >> c;
-    if (c != 1 && c != 2)
-        c = 1; // default merge sort
+    if (c != 1 && c != 2) c = 1;
     return c;
 }
 
@@ -1018,8 +982,7 @@ int promptSearchAlgorithm()
          << "2. Two-Pointer Search\n"
          << "Choice (1-2): ";
     cin >> c;
-    if (c != 1 && c != 2)
-        c = 2; // default two-pointer
+    if (c != 1 && c != 2) c = 2;
     return c;
 }
 
@@ -1052,30 +1015,21 @@ void mainMenu(JobArray &jobs, ResumeArray &resumes, JobArray &jobs_unsorted, Res
             int algo = promptSortAlgorithm();
             size_t memBefore = getMemoryUsageKB();
             auto start = chrono::high_resolution_clock::now();
-            if (algo == 1)
-            {
-                mergeSortJobs(jobs.getArray(), 0, jobs.getSize() - 1);
-                cout << "Jobs sorted using Merge Sort.\n";
-            }
-            else
-            {
-                // Simple insertion sort for demonstration
-                Job *arr = jobs.getArray();
-                int n = jobs.getSize();
-                for (int i = 1; i < n; i++)
+            if (jobs.getSize() > 0) {
+                if (algo == 1)
                 {
-                    Job key = arr[i];
-                    int j = i - 1;
-                    while (j >= 0 && toLowerCopy(arr[j].role) > toLowerCopy(key.role))
-                    {
-                        arr[j + 1] = arr[j];
-                        j--;
-                    }
-                    arr[j + 1] = key;
+                    mergeSortJobs(jobs.getArray(), 0, jobs.getSize() - 1);
+                    cout << "Jobs sorted using Merge Sort.\n";
                 }
-                cout << "Jobs sorted using Insertion Sort.\n";
+                else
+                {
+                    insertionSortJobs(jobs.getArray(), jobs.getSize());
+                    cout << "Jobs sorted using Insertion Sort.\n";
+                }
+            } else {
+                cout << "(no jobs to sort)\n";
             }
-            auto end = chrono::high_resolution_clock::now(); // End timer
+            auto end = chrono::high_resolution_clock::now();
             size_t memAfter = getMemoryUsageKB();
             chrono::duration<double> duration = end - start;
             cout << "\nExecution time: " << duration.count() << " seconds.\n";
@@ -1084,31 +1038,104 @@ void mainMenu(JobArray &jobs, ResumeArray &resumes, JobArray &jobs_unsorted, Res
             break;
         }
 
-        case 3:
-        case 4:
-        case 5:
-        case 6:
-        case 7:
+        // >>> CHANGED: submenu for 3 and 5 — choose sort first, then search
+        case 3: // Search Jobs (Sorted)
         {
-            int algo = promptSearchAlgorithm();
-            g_searchMode = (algo == 1 ? MODE_LINEAR : MODE_TWO_POINTER);
+            // 1) choose sort for the *jobs* array (resort main, keep jobs_unsorted intact)
+            int sortAlgo = promptSortAlgorithm();
+            if (jobs.getSize() > 0) {
+                if (sortAlgo == 1) {
+                    mergeSortJobs(jobs.getArray(), 0, jobs.getSize() - 1);
+                    cout << "[Jobs] Resort complete: Merge Sort.\n";
+                } else {
+                    insertionSortJobs(jobs.getArray(), jobs.getSize());
+                    cout << "[Jobs] Resort complete: Insertion Sort.\n";
+                }
+            } else {
+                cout << "(no jobs to sort)\n";
+            }
+
+            // 2) choose search algorithm (linear / two-pointer)
+            int sAlgo = promptSearchAlgorithm();
+            g_searchMode = (sAlgo == 1 ? MODE_LINEAR : MODE_TWO_POINTER);
+
+            // 3) run search against already-sorted main array; pass 'false' to avoid re-sorting a view
             size_t memBefore = getMemoryUsageKB();
             auto start = chrono::high_resolution_clock::now();
-
-            if (choice == 3)
-                promptAndSearchJobs(jobs, true);
-            else if (choice == 4)
-                promptAndSearchJobs(jobs_unsorted, false);
-            else if (choice == 5)
-                promptAndSearchResumes(resumes, true);
-            else if (choice == 6)
-                promptAndSearchResumes(resumes_unsorted, false);
-            else if (choice == 7)
-                runJobMatching(jobs, resumes);
+            promptAndSearchJobs(jobs, false); // already sorted above
             auto end = chrono::high_resolution_clock::now();
             size_t memAfter = getMemoryUsageKB();
-            chrono::duration<double> duration = end - start;
-            cout << "\nExecution time: " << duration.count() << " seconds.\n";
+            cout << "\nExecution time: " << chrono::duration<double>(end - start).count() << " seconds.\n";
+            cout << "Memory usage: " << (memAfter - memBefore) << " KB.\n";
+            break;
+        }
+
+        case 5: // Search Resumes (Sorted)
+        {
+            int sortAlgo = promptSortAlgorithm();
+            if (resumes.getSize() > 0) {
+                if (sortAlgo == 1) {
+                    mergeSortResumes(resumes.getArray(), 0, resumes.getSize() - 1);
+                    cout << "[Resumes] Resort complete: Merge Sort.\n";
+                } else {
+                    insertionSortResumes(resumes.getArray(), resumes.getSize());
+                    cout << "[Resumes] Resort complete: Insertion Sort.\n";
+                }
+            } else {
+                cout << "(no resumes to sort)\n";
+            }
+
+            int sAlgo = promptSearchAlgorithm();
+            g_searchMode = (sAlgo == 1 ? MODE_LINEAR : MODE_TWO_POINTER);
+
+            size_t memBefore = getMemoryUsageKB();
+            auto start = chrono::high_resolution_clock::now();
+            promptAndSearchResumes(resumes, false); // already sorted above
+            auto end = chrono::high_resolution_clock::now();
+            size_t memAfter = getMemoryUsageKB();
+            cout << "\nExecution time: " << chrono::duration<double>(end - start).count() << " seconds.\n";
+            cout << "Memory usage: " << (memAfter - memBefore) << " KB.\n";
+            break;
+        }
+
+        case 4:
+        {
+            int sAlgo = promptSearchAlgorithm();
+            g_searchMode = (sAlgo == 1 ? MODE_LINEAR : MODE_TWO_POINTER);
+            size_t memBefore = getMemoryUsageKB();
+            auto start = chrono::high_resolution_clock::now();
+            promptAndSearchJobs(jobs_unsorted, false); // explicitly not sorted
+            auto end = chrono::high_resolution_clock::now();
+            size_t memAfter = getMemoryUsageKB();
+            cout << "\nExecution time: " << chrono::duration<double>(end - start).count() << " seconds.\n";
+            cout << "Memory usage: " << (memAfter - memBefore) << " KB.\n";
+            break;
+        }
+
+        case 6:
+        {
+            int sAlgo = promptSearchAlgorithm();
+            g_searchMode = (sAlgo == 1 ? MODE_LINEAR : MODE_TWO_POINTER);
+            size_t memBefore = getMemoryUsageKB();
+            auto start = chrono::high_resolution_clock::now();
+            promptAndSearchResumes(resumes_unsorted, false); // explicitly not sorted
+            auto end = chrono::high_resolution_clock::now();
+            size_t memAfter = getMemoryUsageKB();
+            cout << "\nExecution time: " << chrono::duration<double>(end - start).count() << " seconds.\n";
+            cout << "Memory usage: " << (memAfter - memBefore) << " KB.\n";
+            break;
+        }
+
+        case 7:
+        {
+            int sAlgo = promptSearchAlgorithm();
+            g_searchMode = (sAlgo == 1 ? MODE_LINEAR : MODE_TWO_POINTER);
+            size_t memBefore = getMemoryUsageKB();
+            auto start = chrono::high_resolution_clock::now();
+            runJobMatching(jobs, resumes);
+            auto end = chrono::high_resolution_clock::now();
+            size_t memAfter = getMemoryUsageKB();
+            cout << "\nExecution time: " << chrono::duration<double>(end - start).count() << " seconds.\n";
             cout << "Memory usage: " << (memAfter - memBefore) << " KB.\n";
             break;
         }

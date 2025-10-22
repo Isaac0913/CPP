@@ -3,6 +3,8 @@
         "*.ejs": "html",
         "*.css": "tailwindcss",
         "chrono": "cpp",
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "format": "cpp",
+        "sstream": "cpp"
     }
 }
