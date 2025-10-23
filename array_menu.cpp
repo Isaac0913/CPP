@@ -51,12 +51,20 @@ void mainMenu(JobArray &jobs, ResumeArray &resumes, JobArray &jobs_unsorted, Res
                     mergeSortJobs(jobs.getArray(), 0, jobs.getSize() - 1);
                     auto e2 = chrono::high_resolution_clock::now();
                     size_t memAfter = getProcessMemoryBytes();
-                    // (intentionally quiet like your current code)
+                    cout << "Jobs sorted using Merge Sort.\n";
+                    double seconds = chrono::duration<double>(e2 - s2).count();
+                    cout << "Execution time: " << seconds << "\n";
                 }
                 else
-                {
+                {   
+                    size_t memBefore = getProcessMemoryBytes();
+                    auto s2 = chrono::high_resolution_clock::now();
                     insertionSortJobs(jobs.getArray(), jobs.getSize());
+                    auto e2 = chrono::high_resolution_clock::now();
+                    size_t memAfter = getProcessMemoryBytes();
                     cout << "Jobs sorted using Insertion Sort.\n";
+                    double seconds = chrono::duration<double>(e2 - s2).count();
+                    cout << "Execution time: " << seconds << "\n";
                 }
             }
             else
@@ -120,8 +128,8 @@ void mainMenu(JobArray &jobs, ResumeArray &resumes, JobArray &jobs_unsorted, Res
                     auto e2 = chrono::high_resolution_clock::now();
                     size_t memAfter = getProcessMemoryBytes();
                     cout << "Resumes sorted using Merge Sort.\n";
-                    double seconds = chrono::duration<double>(s2 - e2).count();
-                    cout << "runtime: " << seconds << "\n";
+                    double seconds = chrono::duration<double>(e2 - s2).count();
+                    cout << "Execution time: " << seconds << "\n";
                 }
                 else
                 {
@@ -129,8 +137,8 @@ void mainMenu(JobArray &jobs, ResumeArray &resumes, JobArray &jobs_unsorted, Res
                     insertionSortResumes(resumes.getArray(), resumes.getSize());
                     auto e2 = chrono::high_resolution_clock::now();
                     cout << "Resumes sorted using Insertion Sort.\n";
-                    double seconds = chrono::duration<double>(s2 - e2).count();
-                    cout << "runtime: " << seconds << "\n";
+                    double seconds = chrono::duration<double>(e2 - s2).count();
+                    cout << "Execution time: " << seconds << "\n";
                 }
             }
             else
