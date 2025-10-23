@@ -53,6 +53,8 @@ void mainMenu(JobArray &jobs, ResumeArray &resumes, JobArray &jobs_unsorted, Res
                     size_t memAfter = getProcessMemoryBytes();
                     cout << "Jobs sorted using Merge Sort.\n";
                     double seconds = chrono::duration<double>(e2 - s2).count();
+                    size_t memUsedBytes = (memAfter > memBefore) ? (memAfter - memBefore) : 0;
+                    cout << "Memory usage: " << memUsedBytes << " bytes\n";
                     cout << "Execution time: " << seconds << "\n";
                 }
                 else
@@ -64,6 +66,8 @@ void mainMenu(JobArray &jobs, ResumeArray &resumes, JobArray &jobs_unsorted, Res
                     size_t memAfter = getProcessMemoryBytes();
                     cout << "Jobs sorted using Insertion Sort.\n";
                     double seconds = chrono::duration<double>(e2 - s2).count();
+                    size_t memUsedBytes = (memAfter > memBefore) ? (memAfter - memBefore) : 0;
+                    cout << "Memory usage: " << memUsedBytes << " bytes\n";
                     cout << "Execution time: " << seconds << "\n";
                 }
             }
@@ -129,15 +133,21 @@ void mainMenu(JobArray &jobs, ResumeArray &resumes, JobArray &jobs_unsorted, Res
                     size_t memAfter = getProcessMemoryBytes();
                     cout << "Resumes sorted using Merge Sort.\n";
                     double seconds = chrono::duration<double>(e2 - s2).count();
+                    size_t memUsedBytes = (memAfter > memBefore) ? (memAfter - memBefore) : 0;
+                    cout << "Memory usage: " << memUsedBytes << " bytes\n";
                     cout << "Execution time: " << seconds << "\n";
                 }
                 else
                 {
+                    size_t memBefore = getProcessMemoryBytes();
                     auto s2 = chrono::high_resolution_clock::now();
                     insertionSortResumes(resumes.getArray(), resumes.getSize());
                     auto e2 = chrono::high_resolution_clock::now();
+                    size_t memAfter = getProcessMemoryBytes();
                     cout << "Resumes sorted using Insertion Sort.\n";
                     double seconds = chrono::duration<double>(e2 - s2).count();
+                    size_t memUsedBytes = (memAfter > memBefore) ? (memAfter - memBefore) : 0;
+                    cout << "Memory usage: " << memUsedBytes << " bytes\n";
                     cout << "Execution time: " << seconds << "\n";
                 }
             }
