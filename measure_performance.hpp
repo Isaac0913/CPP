@@ -8,7 +8,7 @@ using namespace std;
 struct PerformanceResult
 {
     double duration_seconds;
-    size_t memory_kb; // memory difference before and after executing the process
+    size_t memory_bytes; // memory difference before and after executing the process
 };
 
 size_t getMemoryUsageKB();
