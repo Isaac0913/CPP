@@ -521,10 +521,14 @@ void runJobMatching(const JobArray &jobs, const ResumeArray &resumes)
                 }
                 if (better)
                 {
-                    auto tmp = matches[b];
-                    matches[b] = matches[best];
-                    matches[best] = tmp;
+                    best = b;
                 }
+            }
+            if (best != a)
+            {
+                ScoredRes tmp = matches[best];
+                matches[best] = matches[a];
+                matches[a] = tmp;
             }
         }
 

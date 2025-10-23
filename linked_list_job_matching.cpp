@@ -83,7 +83,7 @@ void linkedlistRunJobMatching(SearchMode searchMode, MatchQueryData &matchQuery,
                         userOverlap = countSkillMatchesTwoPointer(R.skills, R.skillCount, matchQuery.skills, matchQuery.skillCount);
                     }
 
-                    if (userOverlap == 0 && userOverlap != matchQuery.skillCount)
+                    if (userOverlap != matchQuery.skillCount)
                     {
                         resumeCurrent = resumeCurrent->next;
                         ++rIdx;
