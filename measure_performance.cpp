@@ -45,7 +45,8 @@ PerformanceResult measurePerformance(const function<void()> &taskToMeasure)
 
 void printPerformance(const PerformanceResult &result)
 {
-    cout << "Execution time: " << result.duration_seconds << " seconds." << endl;
-    cout << "Memory usage: " << result.memory_bytes << "bytes." << endl
+    cout << endl
+         << "Execution time: " << result.duration_seconds << " seconds." << endl;
+    cout << "Memory usage: " << result.memory_bytes << " bytes." << endl
          << endl;
 }

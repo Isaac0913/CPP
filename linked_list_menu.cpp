@@ -112,18 +112,43 @@ void linkedListMainMenu()
             SearchQueryData userQuery = promptSearchQuery(true);
 
             PerformanceResult result;
+
             if (choice == 5)
+            {
+                JobLinkedList sortedJobs;
+                int sortAlgo = promptSortAlgorithm();
+                if (sortAlgo == 1)
+                {
+                    sortedJobs = mergeSortJobCopy(jobs);
+                }
+                else
+                {
+                    sortedJobs = sortInsertionJob(jobs);
+                }
                 result = measurePerformance([&]()
-                                            { searchJobs(searchMode, true, userQuery, jobs); });
+                                            { searchJobs(searchMode, userQuery, sortedJobs); });
+            }
             else if (choice == 6)
                 result = measurePerformance([&]()
-                                            { searchJobs(searchMode, false, userQuery, jobs); });
+                                            { searchJobs(searchMode, userQuery, jobs); });
             else if (choice == 7)
+            {
+                ResumeLinkedList sortedResumes;
+                int sortAlgo = promptSortAlgorithm();
+                if (sortAlgo == 1)
+                {
+                    sortedResumes = mergeSortResumeCopy(resumes);
+                }
+                else
+                {
+                    sortedResumes = sortInsertionResume(resumes);
+                }
                 result = measurePerformance([&]()
-                                            { searchResumes(searchMode, true, userQuery, resumes); });
+                                            { searchResumes(searchMode, userQuery, sortedResumes); });
+            }
             else
                 result = measurePerformance([&]()
-                                            { searchResumes(searchMode, false, userQuery, resumes); });
+                                            { searchResumes(searchMode, userQuery, resumes); });
 
             printPerformance(result);
             break;

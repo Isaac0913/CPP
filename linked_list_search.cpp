@@ -16,41 +16,14 @@
 // if (searchType == TYPE_JOBS) {searchJobs(searchMode, true or false, userQuery, jobs)}
 // else if (searchType == TYPE_RESUME) {searchResume(searchMode, true or false, userQuery, jobs)}
 // use PerformanceResult wrapper to measure performance if needed
-void searchJobs(SearchMode searchMode, bool sortedView, SearchQueryData &userQuery, JobLinkedList &jobs)
+void searchJobs(SearchMode searchMode, SearchQueryData &userQuery, JobLinkedList &jobs)
 {
-    JobLinkedList *jobsView = nullptr;
-
-    if (!sortedView)
-    {
-        jobsView = const_cast<JobLinkedList *>(&jobs);
-        cout << "------unsorted---\nunsorted location (location is the ID)\n";
-    }
-    else
-    {
-        // MENU should decide which algorithm to use and set algoChoice accordingly.
-        // For example, algoChoice == 1 -> merge, 2 -> insertion.
-        int algoChoice = promptSortAlgorithm(); // or get from caller
-        if (algoChoice == 1)
-        {
-            // merge sort copy (returns JobLinkedList by value)
-            JobLinkedList sorted = mergeSortJobCopy(jobs);
-            jobsView = new JobLinkedList(sorted); // heap copy for uniform ownership
-            cout << "------sorted (Merge Sort)----\n";
-        }
-        else
-        {
-            JobLinkedList sorted = sortInsertionJob(jobs);
-            jobsView = new JobLinkedList(sorted);
-            cout << "------sorted (Insertion Sort)----\n";
-        }
-    }
-
     int maxSize = jobs.getSize();
     /*ScoreRow* scoreRows = new ScoreRow[maxSize];*/
     LScoreRow *scoreRows = new LScoreRow[maxSize];
     int r = 0;
 
-    JobNodeSingly *current = jobsView->getHead();
+    JobNodeSingly *current = jobs.getHead();
     int index = 0;
 
     while (current != nullptr)
@@ -83,10 +56,6 @@ void searchJobs(SearchMode searchMode, bool sortedView, SearchQueryData &userQue
     if (r == 0)
     {
         cout << "(no matches)\n";
-        if (sortedView)
-        {
-            delete jobsView;
-        }
         delete[] scoreRows;
         return;
     }
@@ -100,48 +69,17 @@ void searchJobs(SearchMode searchMode, bool sortedView, SearchQueryData &userQue
         printJobLine(scoreRows[i].jobNode->data);
     }
 
-    if (sortedView)
-    {
-        delete jobsView;
-    }
-
     delete[] scoreRows;
 }
 
-void searchResumes(SearchMode searchMode, bool sortedView, SearchQueryData &userQuery, ResumeLinkedList &resume)
+void searchResumes(SearchMode searchMode, SearchQueryData &userQuery, ResumeLinkedList &resume)
 {
-    ResumeLinkedList *resumesView;
-    if (!sortedView)
-    {
-        resumesView = const_cast<ResumeLinkedList *>(&resume);
-        cout << "------unsorted---\nunsorted location (location is the ID)\n";
-    }
-    else
-    {
-
-        // CHANGED: Added prompt for algorithm (like in searchJobs)
-        int algoChoice = promptSortAlgorithm(); // 1 = Merge, 2 = Insertion
-
-        if (algoChoice == 1)
-        {
-            ResumeLinkedList sorted = mergeSortResumeCopy(resume);
-            resumesView = new ResumeLinkedList(sorted);
-            cout << "------sorted (Merge Sort)----\n";
-        }
-        else
-        {
-            ResumeLinkedList sorted = sortInsertionResume(resume);
-            resumesView = new ResumeLinkedList(sorted);
-            cout << "------sorted (Insertion Sort)----\n";
-        }
-    }
-
     int maxSize = resume.getSize();
     LScoreRow *scoreRows = new LScoreRow[maxSize];
     /*lScoreRow scoreRows[maxSize];*/
     int r = 0;
 
-    ResumeNodeSingly *current = resumesView->getHead();
+    ResumeNodeSingly *current = resume.getHead();
     int index = 0;
 
     while (current != nullptr)
@@ -174,11 +112,6 @@ void searchResumes(SearchMode searchMode, bool sortedView, SearchQueryData &user
     if (r == 0)
     {
         cout << "(no matches)\n";
-        if (sortedView)
-        {
-            delete resumesView;
-        }
-
         delete[] scoreRows;
         return;
     }
@@ -189,10 +122,6 @@ void searchResumes(SearchMode searchMode, bool sortedView, SearchQueryData &user
     for (int i = 0; i < limit; ++i)
     {
         printResumeLine(scoreRows[i].resumeNode->data);
-    }
-    if (sortedView)
-    {
-        delete resumesView;
     }
     delete[] scoreRows;
 }

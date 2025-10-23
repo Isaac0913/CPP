@@ -40,6 +40,7 @@ void mainMenu(JobArray &jobs, ResumeArray &resumes, JobArray &jobs_unsorted, Res
 
         case 2: // Sort Jobs
         {
+            cloneJobs(jobs, jobs_unsorted);
             int algo = promptSortAlgorithm();
             auto start = chrono::high_resolution_clock::now();
             if (jobs.getSize() > 0)
@@ -58,7 +59,7 @@ void mainMenu(JobArray &jobs, ResumeArray &resumes, JobArray &jobs_unsorted, Res
                     cout << "Execution time: " << seconds << "\n";
                 }
                 else
-                {   
+                {
                     size_t memBefore = getProcessMemoryBytes();
                     auto s2 = chrono::high_resolution_clock::now();
                     insertionSortJobs(jobs.getArray(), jobs.getSize());
@@ -81,6 +82,7 @@ void mainMenu(JobArray &jobs, ResumeArray &resumes, JobArray &jobs_unsorted, Res
 
         case 3: // Search Jobs (Sorted)
         {
+            cloneJobs(jobs, jobs_unsorted);
             int sortAlgo = promptSortAlgorithm();
             if (jobs.getSize() > 0)
             {
@@ -121,6 +123,7 @@ void mainMenu(JobArray &jobs, ResumeArray &resumes, JobArray &jobs_unsorted, Res
 
         case 6: // NEW: Sort Resumes
         {
+            cloneResumes(resumes, resumes_unsorted);
             int algo = promptSortAlgorithm();
             if (resumes.getSize() > 0)
             {
@@ -161,6 +164,7 @@ void mainMenu(JobArray &jobs, ResumeArray &resumes, JobArray &jobs_unsorted, Res
 
         case 7: // Search Resumes (Sorted)
         {
+            cloneResumes(resumes, resumes_unsorted);
             int sortAlgo = promptSortAlgorithm();
             if (resumes.getSize() > 0)
             {

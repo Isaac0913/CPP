@@ -171,7 +171,7 @@ void insertionSortResumes(Resume arr[], int n)
     }
 }
 
-void searchJobsTwoPointer(const JobArray &jobs, const string &userQuery, bool useSortedView)
+void searchJobsTwoPointer(const JobArray &jobs, const SearchQueryData &queryData, bool useSortedView)
 {
     int n = jobs.getSize();
     if (n == 0)
@@ -179,17 +179,6 @@ void searchJobsTwoPointer(const JobArray &jobs, const string &userQuery, bool us
         cout << "No job descriptions loaded.\n";
         return;
     }
-
-    string clean = normalizeText(userQuery);
-    string qSkills[50];
-    int qCount = 0;
-    extractSkills(clean, qSkills, qCount);
-
-    string roleOnlyQ = removeSkillsFromQuery(clean);
-    string qRoleTok[50];
-    int qRoleCount = tokenizeWords(roleOnlyQ, qRoleTok, 50);
-    for (int i = 0; i < qRoleCount; ++i)
-        qRoleTok[i] = toLowerCopy(qRoleTok[i]);
 
     Job *view = nullptr;
     if (!useSortedView)
@@ -212,9 +201,11 @@ void searchJobsTwoPointer(const JobArray &jobs, const string &userQuery, bool us
     for (int i = 0; i < n; ++i)
     {
         int sHits = (g_searchMode == MODE_LINEAR)
-                        ? countSkillMatchesLinear(view[i].skills, view[i].skillCount, qSkills, qCount)
-                        : countSkillMatchesTwoPointer(view[i].skills, view[i].skillCount, qSkills, qCount);
-        int rHits = roleHitCount(toLowerCopy(view[i].role), qRoleTok, qRoleCount);
+                        ? countSkillMatchesLinear(view[i].skills, view[i].skillCount,
+                                                  queryData.skills, queryData.skillCount)
+                        : countSkillMatchesTwoPointer(view[i].skills, view[i].skillCount,
+                                                      queryData.skills, queryData.skillCount);
+        int rHits = roleHitCount(toLowerCopy(view[i].role), queryData.roles, queryData.roleCount);
         if (sHits == 0 && rHits == 0)
             continue;
         rows[r++] = {i, sHits, rHits};
@@ -264,7 +255,7 @@ void searchJobsTwoPointer(const JobArray &jobs, const string &userQuery, bool us
         delete[] view;
 }
 
-void searchResumesTwoPointer(const ResumeArray &resumes, const string &userQuery, bool useSortedView)
+void searchResumesTwoPointer(const ResumeArray &resumes, const SearchQueryData &queryData, bool useSortedView)
 {
     int n = resumes.getSize();
     if (n == 0)
@@ -272,17 +263,6 @@ void searchResumesTwoPointer(const ResumeArray &resumes, const string &userQuery
         cout << "No resumes loaded.\n";
         return;
     }
-
-    string clean = normalizeText(userQuery);
-    string qSkills[50];
-    int qCount = 0;
-    extractSkills(clean, qSkills, qCount);
-
-    string roleOnlyQ = removeSkillsFromQuery(clean);
-    string qRoleTok[50];
-    int qRoleCount = tokenizeWords(roleOnlyQ, qRoleTok, 50);
-    for (int i = 0; i < qRoleCount; ++i)
-        qRoleTok[i] = toLowerCopy(qRoleTok[i]);
 
     Resume *view = nullptr;
     if (!useSortedView)
@@ -305,10 +285,12 @@ void searchResumesTwoPointer(const ResumeArray &resumes, const string &userQuery
     for (int i = 0; i < n; ++i)
     {
         int sHits = (g_searchMode == MODE_LINEAR)
-                        ? countSkillMatchesLinear(view[i].skills, view[i].skillCount, qSkills, qCount)
-                        : countSkillMatchesTwoPointer(view[i].skills, view[i].skillCount, qSkills, qCount);
+                        ? countSkillMatchesLinear(view[i].skills, view[i].skillCount,
+                                                  queryData.skills, queryData.skillCount)
+                        : countSkillMatchesTwoPointer(view[i].skills, view[i].skillCount,
+                                                      queryData.skills, queryData.skillCount);
 
-        int rHits = roleHitCount(toLowerCopy(view[i].raw_text), qRoleTok, qRoleCount);
+        int rHits = roleHitCount(toLowerCopy(view[i].raw_text), queryData.roles, queryData.roleCount);
         if (sHits == 0 && rHits == 0)
             continue;
         rows[r++] = {i, sHits, rHits};
@@ -360,13 +342,10 @@ void searchResumesTwoPointer(const ResumeArray &resumes, const string &userQuery
 
 void promptAndSearchJobs(const JobArray &jobs, bool sortedView)
 {
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    cout << "Enter search text (skills/keywords): ";
-    string query;
-    getline(cin, query);
+    SearchQueryData queryData = promptSearchQuery(true);
     size_t before = getProcessMemoryBytes();
     auto start = chrono::high_resolution_clock::now();
-    searchJobsTwoPointer(jobs, query, sortedView);
+    searchJobsTwoPointer(jobs, queryData, sortedView);
     auto end = chrono::high_resolution_clock::now();
     size_t after = getProcessMemoryBytes();
 
@@ -380,13 +359,10 @@ void promptAndSearchJobs(const JobArray &jobs, bool sortedView)
 
 void promptAndSearchResumes(const ResumeArray &resumes, bool sortedView)
 {
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    cout << "Enter search text (skills/keywords): ";
-    string query;
-    getline(cin, query);
+    SearchQueryData queryData = promptSearchQuery(true);
     size_t before = getProcessMemoryBytes();
     auto start = chrono::high_resolution_clock::now();
-    searchResumesTwoPointer(resumes, query, sortedView);
+    searchResumesTwoPointer(resumes, queryData, sortedView);
     auto end = chrono::high_resolution_clock::now();
     size_t after = getProcessMemoryBytes();
     long long diff = static_cast<long long>(after) - static_cast<long long>(before);

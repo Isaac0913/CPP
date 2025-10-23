@@ -5,9 +5,9 @@
 #include "job_resume_linked_list.hpp"
 #include "user_prompt.hpp"
 
-void searchJobs(SearchMode searchMode, bool sortedView, SearchQueryData &userQuery, JobLinkedList &jobs);
+void searchJobs(SearchMode searchMode, SearchQueryData &userQuery, JobLinkedList &jobs);
 
-void searchResumes(SearchMode searchMode, bool sortedView, SearchQueryData &userQuery, ResumeLinkedList &resume);
+void searchResumes(SearchMode searchMode, SearchQueryData &userQuery, ResumeLinkedList &resume);
 
 void sortScoreRows(LScoreRow rows[], int count, SearchType type);
 
