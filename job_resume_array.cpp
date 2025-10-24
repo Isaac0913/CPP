@@ -21,6 +21,11 @@ int ResumeArray::getSize() const
     return size;
 }
 
+void ResumeArray::setSize(int newSize)
+{
+    size = newSize;
+}
+
 Resume *ResumeArray::getArray()
 {
     return arr;
@@ -51,7 +56,10 @@ int JobArray::getSize() const
 {
     return size;
 }
-
+void JobArray::setSize(int newSize)
+{
+    size = newSize;
+}
 Job *JobArray::getArray()
 {
     return arr;

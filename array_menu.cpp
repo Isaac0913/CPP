@@ -193,6 +193,7 @@ void mainMenu(JobArray &jobs, ResumeArray &resumes, JobArray &jobs_unsorted, Res
 
         case 8: // Search Resumes (Not Sorted)
         {
+            cout << resumes_unsorted.getSize();
             int sAlgo = promptSearchAlgorithm();
             g_searchMode = (sAlgo == 1 ? MODE_LINEAR : MODE_TWO_POINTER);
             promptAndSearchResumes(resumes_unsorted, false); // explicitly not sorted

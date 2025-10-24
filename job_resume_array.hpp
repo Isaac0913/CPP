@@ -15,6 +15,7 @@ public:
     ~ResumeArray();
     void insert(const Resume &r);
     int getSize() const;
+    void setSize(int newSize);
     Resume *getArray();
     const Resume *getArray() const;
 };
@@ -32,6 +33,7 @@ public:
 
     void insert(const Job &j);
     int getSize() const;
+    void setSize(int newSize);
     Job *getArray();
     const Job *getArray() const;
 };

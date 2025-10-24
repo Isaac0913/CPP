@@ -16,12 +16,14 @@ void cloneJobs(JobArray &dst, const JobArray &src)
     int size = src.getSize();
     for (int i = 0; i < size; ++i)
         dst.getArray()[i] = src.getArray()[i];
+    dst.setSize(size);
 }
 void cloneResumes(ResumeArray &dst, const ResumeArray &src)
 {
     int size = src.getSize();
     for (int i = 0; i < size; ++i)
         dst.getArray()[i] = src.getArray()[i];
+    dst.setSize(size);
 }
 
 void displayJobs(JobArray &jobs, int count)
@@ -284,6 +286,7 @@ void searchResumesTwoPointer(const ResumeArray &resumes, const SearchQueryData &
     ScoreRow rows[20000];
     int r = 0;
 
+    // cout << view->getSize();
     for (int i = 0; i < n; ++i)
     {
         int sHits = (g_searchMode == MODE_LINEAR)
