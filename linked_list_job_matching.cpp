@@ -14,133 +14,128 @@ void linkedlistRunJobMatching(SearchMode searchMode, MatchQueryData &matchQuery,
 
     JobNodeSingly *jobCurrent = jobs.getHead();
 
-    PerformanceResult perfResult;
-    perfResult = measurePerformance([&]()
-                                    {
-        while (jobCurrent != nullptr)
+    while (jobCurrent != nullptr)
+    {
+        const Job &J = jobCurrent->data;
+
+        if (toLowerCopy(J.role).find(toLowerCopy(matchQuery.jobRole)) == string::npos)
         {
-            const Job &J = jobCurrent->data;
+            jobCurrent = jobCurrent->next;
+            continue;
+        }
 
-            if (toLowerCopy(J.role).find(toLowerCopy(matchQuery.jobRole)) == string::npos)
-            {
-                jobCurrent = jobCurrent->next;
-                continue;
-            }
+        int jobQuerySkillCount;
+        if (searchMode == MODE_LINEAR)
+        {
+            jobQuerySkillCount = countSkillMatchesLinear(J.skills, J.skillCount, matchQuery.skills, matchQuery.skillCount);
+        }
+        else
+        {
+            jobQuerySkillCount = countSkillMatchesTwoPointer(J.skills, J.skillCount, matchQuery.skills, matchQuery.skillCount);
+        }
 
-            int jobQuerySkillCount;
+        if (jobQuerySkillCount != matchQuery.skillCount)
+        {
+            jobCurrent = jobCurrent->next;
+            continue;
+        }
+
+        const int denom = (J.skillCount > 0 ? J.skillCount : 1);
+        LScoredRes *matches = new LScoredRes[resumeMaxSize];
+        int matchCount = 0;
+
+        ResumeNodeSingly *resumeCurrent = resumes.getHead();
+        int rIdx = 0;
+
+        while (resumeCurrent != nullptr)
+        {
+            const Resume &R = resumeCurrent->data;
+            int overlap = 0;
+            int userOverlap = 0;
+
             if (searchMode == MODE_LINEAR)
             {
-                jobQuerySkillCount = countSkillMatchesLinear(J.skills, J.skillCount, matchQuery.skills, matchQuery.skillCount);
+                overlap = countSkillMatchesLinear(J.skills, J.skillCount, R.skills, R.skillCount);
             }
             else
             {
-                jobQuerySkillCount = countSkillMatchesTwoPointer(J.skills, J.skillCount, matchQuery.skills, matchQuery.skillCount);
+                overlap = countSkillMatchesTwoPointer(J.skills, J.skillCount, R.skills, R.skillCount);
             }
 
-            if (jobQuerySkillCount != matchQuery.skillCount)
+            if (overlap <= 0)
             {
-                jobCurrent = jobCurrent->next;
+                resumeCurrent = resumeCurrent->next;
+                ++rIdx;
                 continue;
             }
 
-            const int denom = (J.skillCount > 0 ? J.skillCount : 1);
-            LScoredRes *matches = new LScoredRes[resumeMaxSize];
-            int matchCount = 0;
-
-            ResumeNodeSingly *resumeCurrent = resumes.getHead();
-            int rIdx = 0;
-
-            while (resumeCurrent != nullptr)
+            if (matchQuery.skillCount > 0)
             {
-                const Resume &R = resumeCurrent->data;
-                int overlap = 0;
-                int userOverlap = 0;
-
                 if (searchMode == MODE_LINEAR)
                 {
-                    overlap = countSkillMatchesLinear(J.skills, J.skillCount, R.skills, R.skillCount);
+                    userOverlap = countSkillMatchesLinear(R.skills, R.skillCount, matchQuery.skills, matchQuery.skillCount);
                 }
                 else
                 {
-                    overlap = countSkillMatchesTwoPointer(J.skills, J.skillCount, R.skills, R.skillCount);
+                    userOverlap = countSkillMatchesTwoPointer(R.skills, R.skillCount, matchQuery.skills, matchQuery.skillCount);
                 }
 
-                if (overlap <= 0)
+                if (userOverlap != matchQuery.skillCount)
                 {
                     resumeCurrent = resumeCurrent->next;
                     ++rIdx;
                     continue;
                 }
-
-                if (matchQuery.skillCount > 0)
-                {
-                    if (searchMode == MODE_LINEAR)
-                    {
-                        userOverlap = countSkillMatchesLinear(R.skills, R.skillCount, matchQuery.skills, matchQuery.skillCount);
-                    }
-                    else
-                    {
-                        userOverlap = countSkillMatchesTwoPointer(R.skills, R.skillCount, matchQuery.skills, matchQuery.skillCount);
-                    }
-
-                    if (userOverlap != matchQuery.skillCount)
-                    {
-                        resumeCurrent = resumeCurrent->next;
-                        ++rIdx;
-                        continue;
-                    }
-                }
-                double pct = (100.0 * overlap) / denom;
-                if (pct < matchQuery.thresholdPct)
-                {
-                    resumeCurrent = resumeCurrent->next;
-                    ++rIdx;
-                    continue;
-                }
-
-                if (matchCount < resumeMaxSize)
-                {
-                    matches[matchCount].resumeNode = resumeCurrent;
-                    matches[matchCount].rIdx = rIdx;
-                    matches[matchCount].overlap = overlap;
-                    matches[matchCount].pct = pct;
-                    ++matchCount;
-                    ++totalMatchCount;
-                }
-
+            }
+            double pct = (100.0 * overlap) / denom;
+            if (pct < matchQuery.thresholdPct)
+            {
                 resumeCurrent = resumeCurrent->next;
                 ++rIdx;
-            }
-
-            if (matchCount == 0)
-            {
-                delete[] matches;
-                jobCurrent = jobCurrent->next;
                 continue;
             }
 
-            sortScoreRes(matches, matchCount);
-
-            cout << "Job ID " << J.id << "\n";
-            cout << "Job role " << J.role << "\n";
-            cout << "Skills: [";
-            for (int k = 0; k < J.skillCount; ++k)
-                cout << J.skills[k] << (k + 1 < J.skillCount ? ", " : "");
-            cout << "]\n";
-
-            int show = (matchCount < 10 ? matchCount : 10);
-            for (int i = 0; i < show; ++i)
+            if (matchCount < resumeMaxSize)
             {
-                const LScoredRes &m = matches[i];
-                const Resume &R = m.resumeNode->data;
-                displayMatchedResume(R, m, matchQuery, denom, i);
+                matches[matchCount].resumeNode = resumeCurrent;
+                matches[matchCount].rIdx = rIdx;
+                matches[matchCount].overlap = overlap;
+                matches[matchCount].pct = pct;
+                ++matchCount;
+                ++totalMatchCount;
             }
-            cout << "\n";
+
+            resumeCurrent = resumeCurrent->next;
+            ++rIdx;
+        }
+
+        if (matchCount == 0)
+        {
             delete[] matches;
             jobCurrent = jobCurrent->next;
-        } });
+            continue;
+        }
 
-    printPerformance(perfResult);
+        sortScoreRes(matches, matchCount);
+
+        cout << "Job ID " << J.id << "\n";
+        cout << "Job role " << J.role << "\n";
+        cout << "Skills: [";
+        for (int k = 0; k < J.skillCount; ++k)
+            cout << J.skills[k] << (k + 1 < J.skillCount ? ", " : "");
+        cout << "]\n";
+
+        int show = (matchCount < 10 ? matchCount : 10);
+        for (int i = 0; i < show; ++i)
+        {
+            const LScoredRes &m = matches[i];
+            const Resume &R = m.resumeNode->data;
+            displayMatchedResume(R, m, matchQuery, denom, i);
+        }
+        cout << "\n";
+        delete[] matches;
+        jobCurrent = jobCurrent->next;
+    };
 
     if (totalMatchCount == 0)
     {

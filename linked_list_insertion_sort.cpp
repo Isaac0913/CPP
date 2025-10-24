@@ -40,10 +40,6 @@ JobLinkedList sortInsertionJob(const JobLinkedList &jobLinkedList)
     return sortedList;
 };
 
-//  Insertion sort for RESUMES
-// ============================================================
-
-// helper to generate the same key as merge sort uses
 static string getResumeSortKey(const Resume &r)
 {
     string key;
@@ -66,7 +62,6 @@ ResumeLinkedList sortInsertionResume(const ResumeLinkedList &resumeLinkedList)
         const Resume &resume = current->data;
         ResumeNodeSingly *newNode = new ResumeNodeSingly(resume);
 
-        //  Define sort key: combine all skills into one lowercase string
         string key;
         for (int i = 0; i < resume.skillCount; ++i)
         {
@@ -74,16 +69,13 @@ ResumeLinkedList sortInsertionResume(const ResumeLinkedList &resumeLinkedList)
             key += '|';
         }
 
-        // insert at correct sorted position
         if (sortedList.getHead() == nullptr)
         {
-            // list empty
             sortedList.setHead(newNode);
             sortedList.setTail(newNode);
         }
         else if (key < getResumeSortKey(sortedList.getHead()->data))
         {
-            // insert at head
             newNode->next = sortedList.getHead();
             sortedList.setHead(newNode);
         }

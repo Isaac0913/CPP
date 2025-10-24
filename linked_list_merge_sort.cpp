@@ -3,8 +3,6 @@
 using namespace std;
 // ------------------------- Helpers -------------------------
 
-// Detect cycle using Floyd's tortoise & hare.
-// Returns true if a cycle exists, false otherwise.
 static bool hasCycle(JobNodeSingly *head)
 {
     if (!head)
@@ -21,7 +19,6 @@ static bool hasCycle(JobNodeSingly *head)
     return false;
 }
 
-// Find middle node (for splitting). If head is nullptr returns nullptr.
 static JobNodeSingly *jobGetMiddle(JobNodeSingly *head)
 {
     if (!head)
@@ -36,13 +33,8 @@ static JobNodeSingly *jobGetMiddle(JobNodeSingly *head)
     return slow;
 }
 
-// Iterative merge of two sorted lists (by role, case-insensitive).
-// Why iterative? Recursive merge may use stack proportional to list length
-// and cause stack overflow on large lists. Iterative merge avoids that.
 static JobNodeSingly *mergeJobsListsIterative(JobNodeSingly *left, JobNodeSingly *right)
 {
-    // Create a dummy node using a temporary empty Job.
-    // We only use its "next" pointer for merging — its data is irrelevant.
     Job emptyJob;
     JobNodeSingly dummy(emptyJob); // stack-based dummy (no heap alloc)
     JobNodeSingly *tail = &dummy;
@@ -61,15 +53,11 @@ static JobNodeSingly *mergeJobsListsIterative(JobNodeSingly *left, JobNodeSingly
         }
         tail = tail->next;
     }
-
-    // Attach whatever remains
     tail->next = (left ? left : right);
 
     return dummy.next;
 }
 
-// Recursive merge sort on nodes (divide & conquer).
-// Depth is O(log n) — safe. Merges are done iteratively to avoid deep recursion there.
 JobNodeSingly *mergeSortJobsLinked(JobNodeSingly *head)
 {
     if (head == nullptr || head->next == nullptr)
@@ -85,7 +73,6 @@ JobNodeSingly *mergeSortJobsLinked(JobNodeSingly *head)
     return mergeJobsListsIterative(leftSorted, rightSorted);
 }
 
-// Returns a *new* sorted linked list without modifying the original
 JobLinkedList mergeSortJobCopy(const JobLinkedList &jobLinkedList)
 {
     if (hasCycle(jobLinkedList.getHead()))
@@ -94,24 +81,18 @@ JobLinkedList mergeSortJobCopy(const JobLinkedList &jobLinkedList)
         return JobLinkedList();
     }
 
-    // 1 Deep copy the input list
     JobLinkedList copy(jobLinkedList); // uses copy constructor
 
-    // 2 Sort the copy in-place (relink nodes)
     JobNodeSingly *newHead = mergeSortJobsLinked(copy.getHead());
     copy.setHead(newHead);
 
-    // 3 Update tail pointer after sorting
     JobNodeSingly *tail = newHead;
     while (tail && tail->next)
         tail = tail->next;
     copy.setTail(tail);
 
-    // 4️Return the sorted copy
     return copy;
 }
-
-// ------------------------- merge sort resume -------------------------
 
 static bool hasCycle(ResumeNodeSingly *head)
 {
@@ -143,7 +124,6 @@ static ResumeNodeSingly *resumeGetMiddle(ResumeNodeSingly *head)
     return slow;
 }
 
-// Merge two sorted resume lists
 static ResumeNodeSingly *mergeResumeListsIterative(ResumeNodeSingly *left, ResumeNodeSingly *right)
 {
     Resume emptyResume;
@@ -170,7 +150,6 @@ static ResumeNodeSingly *mergeResumeListsIterative(ResumeNodeSingly *left, Resum
     return dummy.next;
 }
 
-// Recursive merge sort on resume nodes
 ResumeNodeSingly *mergeSortResumesLinked(ResumeNodeSingly *head)
 {
     if (!head || !head->next)
@@ -186,7 +165,6 @@ ResumeNodeSingly *mergeSortResumesLinked(ResumeNodeSingly *head)
     return mergeResumeListsIterative(leftSorted, rightSorted);
 }
 
-// Public function: returns sorted copy
 ResumeLinkedList mergeSortResumeCopy(const ResumeLinkedList &resumeLinkedList)
 {
     if (hasCycle(resumeLinkedList.getHead()))
@@ -200,7 +178,6 @@ ResumeLinkedList mergeSortResumeCopy(const ResumeLinkedList &resumeLinkedList)
     ResumeNodeSingly *newHead = mergeSortResumesLinked(copy.getHead());
     copy.setHead(newHead);
 
-    // Fix tail pointer
     ResumeNodeSingly *tail = newHead;
     while (tail && tail->next)
         tail = tail->next;

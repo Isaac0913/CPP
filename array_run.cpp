@@ -13,13 +13,15 @@ SearchMode g_searchMode = MODE_TWO_POINTER;
 
 void cloneJobs(JobArray &dst, const JobArray &src)
 {
-    for (int i = 0; i < src.getSize(); ++i)
-        dst.insert(src.getArray()[i]);
+    int size = src.getSize();
+    for (int i = 0; i < size; ++i)
+        dst.getArray()[i] = src.getArray()[i];
 }
 void cloneResumes(ResumeArray &dst, const ResumeArray &src)
 {
-    for (int i = 0; i < src.getSize(); ++i)
-        dst.insert(src.getArray()[i]);
+    int size = src.getSize();
+    for (int i = 0; i < size; ++i)
+        dst.getArray()[i] = src.getArray()[i];
 }
 
 void displayJobs(JobArray &jobs, int count)

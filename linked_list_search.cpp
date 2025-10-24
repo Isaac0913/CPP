@@ -60,7 +60,6 @@ void searchJobs(SearchMode searchMode, SearchQueryData &userQuery, JobLinkedList
         return;
     }
 
-    // use enum SearchType?
     sortScoreRows(scoreRows, r, TYPE_JOBS);
 
     int limit = (r < 10 ? r : 10);
