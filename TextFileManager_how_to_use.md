@@ -11,7 +11,7 @@
 // How to use readLinesFromFile
 // Remember: readLinesFromFile returns a pointer of the dynamic array, so must release/delete after use
 // when reading the raw strings and inserting them into your own constructors:
-int size = 0;                                                             // this will the number of rows/records in your container later,
+int size = 0;                                                             // this will the number of rows/records in your file later
 string *lines = TextFileManager::readLinesFromFile("yourfile.txt", size); // the size will be updated based on how many lines it read in the text file
 if (lines != nullptr)
 {
