@@ -1,15 +1,13 @@
 #ifndef AMBULANCE_DISPATCH_HPP
 #define AMBULANCE_DISPATCH_HPP
 
-// for file I/O
 #include <sstream>
-#include "TextFileManager.hpp"
 #include "Ambulance.hpp"
+#include "TextFileManager.hpp"
 
 class AmbulanceDispatcher
 {
 private:
-    TextFileManager fileManager;
     static const string FILENAME; // the filename where ambulances are stored
     static const char DELIMITER;  // the delimiter
 

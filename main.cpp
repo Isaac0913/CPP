@@ -50,7 +50,7 @@ int main()
         }
         case 4:
         {
-            cout << "\n\n";
+            cout << "\n";
             runAmbulanceDispatcherMenu();
             break;
         }

@@ -1,7 +1,5 @@
 #include "AmbulanceDispatcher.hpp"
 
-#include <iostream>
-
 const string AmbulanceDispatcher::FILENAME = "ambulance.txt";
 const char AmbulanceDispatcher::DELIMITER = '|';
 
@@ -100,7 +98,8 @@ void AmbulanceDispatcher::displaySchedule()
         return;
     }
 
-    cout << "Ambulance Schedule:" << endl;
+    cout << "\n\nAmbulance Schedule:" << endl;
+    cout << "------------------------" << endl;
     int index = front;
     for (int i = 0; i < count; i++)
     {

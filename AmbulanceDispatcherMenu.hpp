@@ -43,7 +43,11 @@ void runAmbulanceDispatcherMenu()
             ambulanceDispatcher.displaySchedule();
             break;
         }
-
+        case 0:
+        {
+            cout << "Returning to Main Menu...\n";
+            break;
+        }
         default:
             cout << "Invalid choice! Please try again!\n";
         }
