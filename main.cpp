@@ -1,5 +1,6 @@
 #include "AmbulanceDispatcherMenu.hpp"
 #include "EmergencyDepartmentMenu.hpp"
+#include "MedicalSupplyMenu.hpp"
 
 // REMEMBER TO COMPILE ALL FILES { g++ *.cpp -o main }
 
@@ -39,7 +40,8 @@ int main()
         }
         case 2:
         {
-            // medical supply menu here
+            cout << "\n\n";
+            runMedicalSupplyMenu();
             break;
         }
         case 3:
