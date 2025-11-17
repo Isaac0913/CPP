@@ -1,0 +1,3 @@
+P002|alice|cough
+P003|mira|flu
+P004|abu|sick

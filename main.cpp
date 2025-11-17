@@ -1,10 +1,12 @@
 #include "AmbulanceDispatcherMenu.hpp"
 #include "EmergencyDepartmentMenu.hpp"
 #include "MedicalSupplyMenu.hpp"
+#include "PatientAdmissionClerkMenu.hpp"
 
 // REMEMBER TO COMPILE ALL FILES { g++ *.cpp -o main }
 
 int main()
+
 {
     int choice = -1;
     do
@@ -35,7 +37,9 @@ int main()
         {
         case 1:
         {
-            // patient menu here
+            cout << "\n\n";
+
+            runPatientMenu();
             break;
         }
         case 2:
